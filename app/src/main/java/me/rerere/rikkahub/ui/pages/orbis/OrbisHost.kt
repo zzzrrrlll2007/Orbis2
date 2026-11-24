@@ -154,70 +154,35 @@ fun OrbisChatDock(currentLabel: String = "当前 聊天", ownerAssistantId: Stri
         val connection by koinInject<OrbisIntegrationConnections>()[OrbisIntegration.CONSULTATION].state.collectAsStateWithLifecycle()
         connection.available
     } else false
-    OrbisBottomDock(
-        currentLabel = currentLabel,
-        onHome = returnToChat,
-        homeDescription = "返回当前聊天",
-        onOpenNavigation = { menuOpen = true },
-    )
-    if (menuOpen) OrbisInterfaceTheme {
-        val sheetState = rememberBottomSheetState(
-            initialValue = SheetValue.Hidden,
-            enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded),
-        )
-        // Material places the sheet with its anchored-draggable offset inside a motion frame.
-        // The external modifier's positionInWindow can remain 0 despite a short, lowered sheet.
-        // Read the same observable offset Material uses for placement; before measurement it
-        // throws, so keep the Activity appearance until anchors have been initialized.
-        val sheetOffsetPx = runCatching { sheetState.requireOffset() }.getOrNull()
-        val sheetLightBars = OrbisTheme.colors.panel.luminance() > .5f
-        val activityLightBars = LocalStatusBarAppearanceOverride.current?.value ?: !LocalDarkMode.current
-        val statusBarHeightPx = WindowInsets.statusBars.getTop(LocalDensity.current)
-        ModalBottomSheet(
-        onDismissRequest = { menuOpen = false },
-        containerColor = OrbisTheme.colors.panel,
-        // Material owns this separate Dialog window. Do not change Activity flags from it:
-        // a short sheet leaves the dark chat visible at the top, while a tall sheet covers it.
-        properties = ModalBottomSheetProperties(
-            isAppearanceLightStatusBars = orbisSheetLightStatusBars(activityLightBars, sheetLightBars,
-                sheetOffsetPx, statusBarHeightPx),
-            isAppearanceLightNavigationBars = sheetLightBars,
-        ),
-        sheetState = sheetState,
-    ) {
-        OrbisScrollablePanel(windowInsets = WindowInsets(0, 0, 0, 0)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f)) {
-                    Text("北斗导航", style = MaterialTheme.typography.titleLarge)
-                    Text("在同一个家里，回到你想去的地方", style = MaterialTheme.typography.bodySmall,
-                        color = OrbisTheme.colors.mutedInk)
-                }
-                IconButton(onClick = { menuOpen = false }) {
-                    Icon(HugeIcons.Cancel01, "关闭北斗导航")
-                }
-            }
-            fun go(screen: Screen) { menuOpen = false; navigator.navigate(screen) { launchSingleTop = true } }
-            OrbisNavigationGrid(listOf(
-                OrbisNavigationItem("chat", "聊天", "返回当前会话", HugeIcons.Message01,
-                    { menuOpen = false; returnToChat() }),
-                OrbisNavigationItem("orbis", "Orbis", "本地后花园 / 自建原站", HugeIcons.Home01,
-                    { menuOpen = false; openHome() }),
-                OrbisNavigationItem("hub", "群聊", "AI 群聊 · 可选 TechHub", HugeIcons.UserGroup,
-                    { go(Screen.OrbisGroups) }),
-                OrbisNavigationItem("memory", "记忆星图", "本机与 ST · 只读元信息", HugeIcons.Sparkles,
-                    { go(Screen.OrbisMemoryAtlas) }),
-                OrbisNavigationItem("tools", "工具娱乐", "工作区、文件与本地工具", HugeIcons.Command,
-                    { go(orbisToolsRoute(ownerAssistantId, conversationId)) }),
-                OrbisNavigationItem("permissions", "后台与权限", "哨兵与手机设备能力", HugeIcons.SecurityCheck,
-                    { go(Screen.OrbisPhone) }),
-                OrbisNavigationItem("settings", "系统设置", "模型、MCP、声音与数据", HugeIcons.Settings01,
-                    { go(Screen.Setting) }),
-            ) + if (showConsultationInNavigation(consultationEnabled, consultationAvailable)) listOf(
-                OrbisNavigationItem("consultation", "咨询室", "偷听角 · 独立人类授权", HugeIcons.Message01,
-                    { go(Screen.OrbisConsultation) })
-            ) else emptyList())
-            Text("开发中：灰色入口尚未连接真实服务。聊天使用现有会话，不创建副本。",
-                style = MaterialTheme.typography.bodySmall, color = OrbisTheme.colors.mutedInk)
+    fun go(screen: Screen) = navigator.navigate(screen) { launchSingleTop = true }
+    val drawerItems = buildList {
+        add(OrbisNavigationItem("chat", "聊天", "返回当前会话", HugeIcons.Message01,
+            { menuOpen = false; returnToChat() }))
+        add(OrbisNavigationItem("orbis", "Orbis", "本地后花园 / 自建原站", HugeIcons.Home01,
+            { menuOpen = false; openHome() }))
+        add(OrbisNavigationItem("hub", "群聊", "AI 群聊 · 可选 TechHub", HugeIcons.UserGroup,
+            { menuOpen = false; go(Screen.OrbisGroups) }))
+        add(OrbisNavigationItem("memory", "记忆星图", "本机与 ST · 只读元信息", HugeIcons.Sparkles,
+            { menuOpen = false; go(Screen.OrbisMemoryAtlas) }))
+        add(OrbisNavigationItem("tools", "工具娱乐", "工作区、文件与本地工具", HugeIcons.Command,
+            { menuOpen = false; go(orbisToolsRoute(ownerAssistantId, conversationId)) }))
+        add(OrbisNavigationItem("permissions", "后台与权限", "哨兵与手机设备能力", HugeIcons.SecurityCheck,
+            { menuOpen = false; go(Screen.OrbisPhone) }))
+        add(OrbisNavigationItem("settings", "系统设置", "模型、MCP、声音与数据", HugeIcons.Settings01,
+            { menuOpen = false; go(Screen.Setting) }))
+        if (showConsultationInNavigation(consultationEnabled, consultationAvailable)) {
+            add(OrbisNavigationItem("consultation", "咨询室", "偷听角 · 独立人类授权", HugeIcons.Message01,
+                { menuOpen = false; go(Screen.OrbisConsultation) }))
         }
-    } }
+    }
+    OrbisGlassDrawer(
+        visible = menuOpen,
+        items = drawerItems,
+        conversations = emptyList(),
+        currentLabel = currentLabel,
+        onClose = { menuOpen = false },
+        onSearch = { menuOpen = false; go(Screen.MessageSearch) },
+        onNewConversation = { menuOpen = false },
+        onAppearance = { menuOpen = false; go(Screen.SettingTheme) },
+    )
 }

@@ -1,10 +1,6 @@
 package me.rerere.rikkahub.ui.pages.orbis
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -39,6 +35,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import me.rerere.rikkahub.ui.theme.GlassTints
 import me.rerere.rikkahub.ui.theme.glass.GlassTokens
 import me.rerere.rikkahub.ui.theme.glass.glassSurface
@@ -61,30 +59,22 @@ fun OrbisGlassDrawer(
     onAppearance: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    if (!visible) return
     val colors = OrbisTheme.colors
     val dark = androidx.compose.foundation.isSystemInDarkTheme()
     val shape = RoundedCornerShape(topEnd = 28.dp, bottomEnd = 28.dp)
 
+    // 由聊天页底部栏的槽位调用，所以必须用 Popup 才能盖住整屏。
+    Popup(alignment = Alignment.TopStart, properties = PopupProperties(focusable = true)) {
     Box(modifier = modifier.fillMaxSize()) {
-        AnimatedVisibility(
-            visible = visible,
-            enter = fadeIn(),
-            exit = fadeOut(),
-        ) {
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .background(GlassTints.scrim(!dark))
-                    .clickable(onClick = onClose),
-            )
-        }
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(GlassTints.scrim(!dark))
+                .clickable(onClick = onClose),
+        )
 
-        AnimatedVisibility(
-            visible = visible,
-            enter = slideInHorizontally(initialOffsetX = { -it }),
-            exit = slideOutHorizontally(targetOffsetX = { -it }),
-        ) {
-            Column(
+        Column(
                 modifier = Modifier
                     .fillMaxHeight()
                     .widthIn(max = 320.dp)
