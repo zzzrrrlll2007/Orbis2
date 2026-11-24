@@ -7,6 +7,7 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 import me.rerere.rikkahub.ui.pages.orbis.OrbisColors
 import me.rerere.rikkahub.ui.pages.orbis.OrbisPalette
+import me.rerere.rikkahub.ui.theme.ZoePalette
 import me.rerere.rikkahub.ui.theme.PresetTheme
 
 /** Selectable native preset. Does not overwrite an existing theme or wallpaper preference. */
@@ -14,8 +15,8 @@ val OrbisThemePreset by lazy {
     PresetTheme(
         id = "orbis",
         name = { Text("Orbis · 星夜与奶油") },
-        standardLight = orbisScheme(lightColorScheme(), OrbisPalette.Light),
-        standardDark = orbisScheme(darkColorScheme(), OrbisPalette.Dark),
+        standardLight = orbisScheme(lightColorScheme(), ZoePalette.Light),
+        standardDark = orbisScheme(darkColorScheme(), ZoePalette.Dark),
     )
 }
 

@@ -18,7 +18,7 @@ android {
 
     defaultConfig {
         // Independent sandbox. Never replace the user's existing RikkaHub installation.
-        applicationId = "org.orbis.agent"
+        applicationId = "org.orbis.zoe"
         minSdk = 26
         targetSdk = 37
         versionCode = 316

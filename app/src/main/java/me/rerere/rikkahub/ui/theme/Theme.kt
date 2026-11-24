@@ -112,7 +112,8 @@ fun RikkahubTheme(
     ) {
         MaterialExpressiveTheme(
             colorScheme = colorSchemeConverted,
-            typography = Typography,
+            typography = appTypography(LocalTypefaceMode.current),
+            shapes = ZoeShapes,
             content = content,
             motionScheme = MotionScheme.expressive()
         )

@@ -66,6 +66,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import me.rerere.rikkahub.ui.theme.LocalDarkMode
+import me.rerere.rikkahub.ui.theme.ZoePalette
 import me.rerere.rikkahub.ui.theme.presets.deepSeekColorScheme
 import kotlin.math.cos
 import kotlin.math.sin
@@ -193,8 +194,8 @@ internal fun resolveOrbisVisualColors(
     deepSeekStyle && darkTheme -> OrbisPalette.DeepSeekDark
     deepSeekStyle -> OrbisPalette.DeepSeekLight
     season != OrbisSeason.NONE -> orbisSeasonColors(season, darkTheme)
-    darkTheme -> OrbisPalette.Dark
-    else -> OrbisPalette.Light
+    darkTheme -> ZoePalette.Dark
+    else -> ZoePalette.Light
 }
 
 object OrbisTheme {
