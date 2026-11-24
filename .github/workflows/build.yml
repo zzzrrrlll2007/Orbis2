@@ -37,6 +37,24 @@ jobs:
           distribution: temurin
           java-version: '17'
 
+      # web/build.gradle.kts runs `pnpm run build` in web-ui/ for :web:buildWebUi,
+      # which is a dependency of :app:preBuild. Without Node + pnpm the build dies
+      # immediately with "Could not start 'pnpm'".
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: false
+
+      - name: Install web-ui dependencies
+        working-directory: web-ui
+        run: pnpm install --frozen-lockfile
+
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
