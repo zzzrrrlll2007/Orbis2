@@ -1,8 +1,8 @@
 name: build-zoe-debug
 
 # Cloud build for the Zoe (org.orbis.zoe) variant.
-# The repo has no existing .github/ directory: this file is added from scratch.
-# Debug builds need no signing secrets, so this runs on a fork with default settings.
+# Publishes the arm64 debug APK to a public prerelease so it can be downloaded
+# straight from a phone browser, without signing in or visiting the Actions page.
 
 on:
   push:
@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: zoe-debug-${{ github.ref }}
@@ -60,30 +60,44 @@ jobs:
         with:
           cache-read-only: false
 
-      - name: Gradle info
-        run: |
-          chmod +x ./gradlew
-          ./gradlew --version
-
       - name: Assemble debug APK
         env:
           GRADLE_OPTS: >-
             -Dorg.gradle.jvmargs=-Xmx6g -XX:MaxMetaspaceSize=1g
             -Dorg.gradle.parallel=true
-        run: ./gradlew :app:assembleDebug --stacktrace --no-daemon
+        run: |
+          chmod +x ./gradlew
+          ./gradlew :app:assembleDebug --stacktrace --no-daemon
 
-      - name: Locate APK
+      - name: Pick arm64 APK
         id: apk
         run: |
           set -euo pipefail
-          APK=$(find app/build/outputs/apk/debug -name '*.apk' | head -n 1)
+          APK=$(find app/build/outputs/apk/debug -name '*arm64-v8a*debug.apk' | head -n 1)
+          if [ -z "$APK" ]; then APK=$(find app/build/outputs/apk/debug -name '*.apk' | head -n 1); fi
           echo "path=$APK" >> "$GITHUB_OUTPUT"
           ls -lh "$APK"
 
-      - name: Upload APK
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: orbis-zoe-debug
-          path: app/build/outputs/apk/debug/*.apk
+          name: orbis-zoe-debug-arm64
+          path: ${{ steps.apk.outputs.path }}
           if-no-files-found: error
           retention-days: 14
+
+      # Public download link: no GitHub login, works from a phone browser.
+      - name: Publish to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          TAG="zoe-debug"
+          TITLE="Zoe 调试包（水彩玻璃 · arm64）"
+          NOTES="自动构建 ${GITHUB_SHA::7} · 包名 org.orbis.zoe.dev · 桌面名 Orbis Dev · 与官方 Orbis 共存"
+          gh release delete "$TAG" --yes --cleanup-tag || true
+          gh release create "$TAG" "${{ steps.apk.outputs.path }}" \
+            --prerelease --title "$TITLE" --notes "$NOTES" \
+            --target "$GITHUB_SHA"
+          echo "### 下载地址" >> "$GITHUB_STEP_SUMMARY"
+          echo "https://github.com/${{ github.repository }}/releases/download/$TAG/$(basename ${{ steps.apk.outputs.path }})" >> "$GITHUB_STEP_SUMMARY"
