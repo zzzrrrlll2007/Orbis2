@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import me.rerere.rikkahub.ui.pages.orbis.OrbisTheme
 import me.rerere.rikkahub.ui.theme.LocalDarkMode
-import me.rerere.rikkahub.ui.theme.glass.GlassTints
+import me.rerere.rikkahub.ui.theme.GlassTints
 import me.rerere.rikkahub.ui.theme.glass.glassSurface
 
 /** One reasoning step, already flattened for display. */

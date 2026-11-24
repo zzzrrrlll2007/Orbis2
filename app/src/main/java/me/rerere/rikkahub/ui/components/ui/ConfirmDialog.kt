@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import me.rerere.rikkahub.ui.pages.orbis.OrbisTheme
 import me.rerere.rikkahub.ui.theme.LocalDarkMode
-import me.rerere.rikkahub.ui.theme.glass.GlassTints
+import me.rerere.rikkahub.ui.theme.GlassTints
 import me.rerere.rikkahub.ui.theme.glass.glassSurface
 
 /**
