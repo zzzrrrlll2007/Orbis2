@@ -680,9 +680,9 @@ internal fun SendButton(
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
-            .size(if (BuildConfig.ORBIS_ENABLED) 48.dp else 30.dp)
+            .size(if (BuildConfig.ORBIS_ENABLED) 46.dp else 30.dp)
             .testTag("chat_send_button")
-            .clip(if (BuildConfig.ORBIS_ENABLED) RoundedCornerShape(16.dp) else CircleShape)
+            .clip(if (BuildConfig.ORBIS_ENABLED) RoundedCornerShape(19.dp) else CircleShape)
             .combinedClickable(
                 enabled = showStop || !empty,
                 onClick = onClick,
@@ -692,8 +692,8 @@ internal fun SendButton(
         Surface(
             // Keep the outer 48dp hit target while matching the prototype's
             // compact 40dp send surface. Semantics/cancel behavior stay real.
-            modifier = if (BuildConfig.ORBIS_ENABLED) Modifier.size(40.dp) else Modifier.fillMaxSize(),
-            shape = if (BuildConfig.ORBIS_ENABLED) RoundedCornerShape(14.dp) else CircleShape,
+            modifier = if (BuildConfig.ORBIS_ENABLED) Modifier.size(38.dp) else Modifier.fillMaxSize(),
+            shape = if (BuildConfig.ORBIS_ENABLED) RoundedCornerShape(17.dp) else CircleShape,
             color = containerColor,
             content = {},
         )
