@@ -1,33 +1,108 @@
 /*
- * Zoe 水彩玻璃壳 —— 内置 HTML 页的覆盖层（在 original.css / local.css 之后加载）。
+ * Zoe 水彩玻璃壳 · v2 —— 内置 HTML 页覆盖层（original.css → local.css → 本文件）。
  *
- * 只改观感，不动结构：顶栏、按钮、卡片统一成和 App 原生页同一套纸白玻璃，
- * 字号/间距沿用页面原有规则，避免把书页、日历的排版挤坏。
- * 主题由 App 在页面加载后写 <html data-theme="light|dark">，本文件只读。
+ * v1 只写了日历头和阅读头，后花园首页真正露在外面的其实是
+ * `.local-home .top-section`（伙伴/藏书阁/管理/游戏机/返回聊天）和 `.calendar` 卡片，
+ * 所以这次直接落在这些选择器上，并且做得更实（纸白玻璃、更大圆角、更明显投影）。
  */
 
 :root {
   --z-ink: #2F3944;
   --z-muted: #5E6A77;
-  --z-border: rgba(255, 255, 255, .85);
-  --z-glass-top: rgba(255, 255, 255, .95);
-  --z-glass-bottom: rgba(248, 251, 248, .92);
-  --z-shadow: 0 8px 22px rgba(70, 79, 92, .10);
-  --z-highlight: inset 0 1px 0 rgba(255, 255, 255, .9);
+  --z-border: rgba(255, 255, 255, .92);
+  --z-glass-top: rgba(255, 255, 255, .97);
+  --z-glass-bottom: rgba(248, 246, 242, .94);
+  --z-shadow: 0 12px 30px rgba(70, 79, 92, .14);
+  --z-highlight: inset 0 1px 0 rgba(255, 255, 255, .95);
+  --z-accent: #64809C;
 }
 
 html[data-theme="dark"] {
   --z-ink: #E9E4DB;
   --z-muted: #A6AFB9;
-  --z-border: rgba(255, 255, 255, .16);
-  --z-glass-top: rgba(90, 106, 118, .95);
-  --z-glass-bottom: rgba(43, 51, 60, .94);
-  --z-shadow: 0 10px 24px rgba(0, 0, 0, .42);
-  --z-highlight: inset 0 1px 0 rgba(255, 255, 255, .12);
+  --z-border: rgba(255, 255, 255, .14);
+  --z-glass-top: rgba(80, 94, 108, .97);
+  --z-glass-bottom: rgba(40, 47, 57, .96);
+  --z-shadow: 0 14px 32px rgba(0, 0, 0, .5);
+  --z-highlight: inset 0 1px 0 rgba(255, 255, 255, .1);
+  --z-accent: #9DB4C9;
 }
 
-/* ---- 顶栏：后花园首页的日历头、内页的阅读头，统一成一条玻璃药丸 ---- */
-.calendar__header,
+/* ---------- 后花园首页：顶部五个入口 → 一条玻璃药丸 ---------- */
+.local-home .top-section {
+  margin: 10px 12px 16px;
+  padding: 12px 8px 10px;
+  border-radius: 22px;
+  background: linear-gradient(180deg, var(--z-glass-top), var(--z-glass-bottom));
+  border: 1px solid var(--z-border);
+  box-shadow: var(--z-shadow), var(--z-highlight);
+  -webkit-backdrop-filter: blur(16px) saturate(130%);
+  backdrop-filter: blur(16px) saturate(130%);
+}
+
+.local-home .top-section > button,
+.local-home .top-section > button:last-child {
+  color: var(--z-ink);
+  border-radius: 14px;
+}
+
+.local-home .top-section .name-tag {
+  color: var(--z-ink);
+  font-weight: 500;
+  letter-spacing: .04em;
+}
+
+.local-home .top-section .local-flower,
+.local-home .top-section svg {
+  color: var(--z-accent);
+}
+
+/* ---------- 日历：整张纸白玻璃卡 ---------- */
+.calendar {
+  margin: 0 12px 18px;
+  border-radius: 26px;
+  color: var(--z-ink);
+  background: linear-gradient(180deg, var(--z-glass-top), var(--z-glass-bottom));
+  border: 1px solid var(--z-border);
+  box-shadow: var(--z-shadow), var(--z-highlight);
+  overflow: hidden;
+}
+
+.calendar__header {
+  position: static;
+  margin: 0;
+  padding: 18px 18px 10px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  color: var(--z-ink);
+}
+
+.calendar__header .calendar__month,
+.calendar__month .year-number {
+  color: var(--z-ink);
+  font-weight: 700;
+}
+
+.calendar__nav .icon-btn,
+.calendar__day {
+  color: var(--z-ink);
+}
+
+.calendar__day--has-entry {
+  color: var(--z-accent);
+  font-weight: 600;
+}
+
+.calendar__weekdays,
+.calendar__weekday {
+  color: var(--z-muted);
+}
+
+/* ---------- 内页 / 阅读页顶栏 ---------- */
 .local-shell .reading-header {
   position: sticky;
   top: 0;
@@ -43,26 +118,18 @@ html[data-theme="dark"] {
   backdrop-filter: blur(16px) saturate(130%);
 }
 
-.calendar__header .calendar__month,
 .local-shell .reading-header h1,
 .local-shell h1 {
   color: var(--z-ink);
   font-weight: 600;
-  letter-spacing: .01em;
 }
 
-.calendar__nav .icon-btn,
-.reading-header .back-btn,
-.reading-head-btn {
-  color: var(--z-ink);
-  border-radius: 999px;
-}
-
-/* ---- 按钮：胶囊 + 同款玻璃，尺寸沿用原规则 ---- */
+/* ---------- 按钮 / 卡片 / 输入 ---------- */
 .local-actions button,
 .local-button,
 .quick-card button,
-.song-card button {
+.song-card button,
+.reading-head-btn {
   border-radius: 999px;
   border: 1px solid var(--z-border);
   color: var(--z-ink);
@@ -70,7 +137,6 @@ html[data-theme="dark"] {
   box-shadow: 0 4px 12px rgba(70, 79, 92, .08), var(--z-highlight);
 }
 
-/* ---- 卡片：书页、快捷卡、歌卡，收成同一张纸白玻璃 ---- */
 .local-section,
 .local-date-page .quick-card,
 .local-date-page .song-card,
@@ -83,7 +149,8 @@ html[data-theme="dark"] {
 }
 
 .local-section h2,
-.local-section h3 {
+.local-section h3,
+.local-entry {
   color: var(--z-ink);
 }
 
@@ -93,12 +160,15 @@ html[data-theme="dark"] {
   color: var(--z-muted);
 }
 
-.local-entry {
+.local-shell input,
+.local-shell textarea,
+.local-shell select {
+  border-radius: 14px;
+  border: 1px solid var(--z-border);
+  background: rgba(255, 255, 255, .8);
   color: var(--z-ink);
-  border-bottom-color: var(--z-border);
 }
 
-/* 夜间：只压暗页面本身，保留原本的星空/渐晕图 */
 html[data-theme="dark"] body {
   background-color: #151A1F;
   color: var(--z-ink);
@@ -107,7 +177,7 @@ html[data-theme="dark"] body {
 html[data-theme="dark"] .local-shell input,
 html[data-theme="dark"] .local-shell textarea,
 html[data-theme="dark"] .local-shell select {
-  background: rgba(43, 51, 60, .9);
+  background: rgba(43, 51, 60, .92);
   border-color: var(--z-border);
   color: var(--z-ink);
 }
