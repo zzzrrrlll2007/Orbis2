@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Zoe launcher foreground: two concave four-point sparkles (big + small), pure pink. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- 大星：中心 54,54，半径 30，四条边用二次贝塞尔向内收 -->
+    <path
+        android:fillColor="#F3B0C0"
+        android:pathData="M54,24 Q58.24,49.76 84,54 Q58.24,58.24 54,84 Q49.76,58.24 24,54 Q49.76,49.76 54,24 Z" />
+
+    <!-- 小星：右上角，中心 76,30，半径 9 -->
+    <path
+        android:fillColor="#E88AA0"
+        android:pathData="M76,21 Q77.27,28.73 85,30 Q77.27,31.27 76,39 Q74.73,31.27 67,30 Q74.73,28.73 76,21 Z" />
+</vector>
