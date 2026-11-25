@@ -31,6 +31,7 @@ import me.rerere.rikkahub.data.model.OrbisBubbleStyle
 import me.rerere.rikkahub.ui.context.LocalOrbisChatTextColor
 import me.rerere.rikkahub.ui.pages.orbis.OrbisTheme
 import me.rerere.rikkahub.ui.pages.orbis.LocalOrbisDeepSeekStyle
+import me.rerere.rikkahub.ui.theme.GlassTints
 import me.rerere.rikkahub.ui.theme.LocalDarkMode
 
 /** Presentation only. The caller retains the real parts, links, tools and streaming state. */
@@ -54,9 +55,9 @@ internal fun OrbisMessageBubble(
     val alpha = options.bubbleOpacityForRole(user)
     val shape = when (style) {
         OrbisBubbleStyle.SILK -> RoundedCornerShape(
-            topStart = 22.dp, topEnd = 22.dp,
-            bottomEnd = if (user) 8.dp else 22.dp,
-            bottomStart = if (user) 22.dp else 8.dp,
+            topStart = 20.dp, topEnd = 20.dp,
+            bottomEnd = if (user) 6.dp else 20.dp,
+            bottomStart = if (user) 20.dp else 6.dp,
         )
         OrbisBubbleStyle.GLASS -> RoundedCornerShape(24.dp)
         OrbisBubbleStyle.STARS -> RoundedCornerShape(
@@ -70,32 +71,60 @@ internal fun OrbisMessageBubble(
             bottomEnd = if (user) 10.dp else 20.dp,
         )
     }
+    // 预览图的玻璃规矩：只有「我」说的话是一块玻璃；AI 的回答直接落在纸面上，不套框。
+    val previewGlass = !deepSeek && style != OrbisBubbleStyle.STARS && style != OrbisBubbleStyle.BOOK
+    val light = !dark
     val backgroundColors = when {
         deepSeek -> List(2) { if (user) colors.tintedPanel else colors.panel }
+        previewGlass && user -> listOf(GlassTints.top(light), GlassTints.bottom(light))
+        previewGlass -> listOf(Color.Transparent, Color.Transparent)
         dark && user -> listOf(Color(0xFF554153), Color(0xFF3D435F))
         dark -> listOf(Color(0xFF2D2E43), Color(0xFF252738))
         user && style == OrbisBubbleStyle.GLASS -> listOf(Color(0xFFE0CEE8), Color(0xFFE0CEE8))
         user -> listOf(Color(0xFFF8DEC9), Color(0xFFEFD7DD))
         style == OrbisBubbleStyle.BOOK -> listOf(Color(0xFFFFFCF5), Color(0xFFFAF4E8))
         else -> listOf(Color.White, Color(0xFFFFFDFC))
-    }.map { it.copy(alpha = alpha) }
-    val edge = if (deepSeek) colors.border else when (style) {
-        OrbisBubbleStyle.STARS -> if (dark) Color(0xFF897453) else Color(0xFFE3CFAD)
-        OrbisBubbleStyle.GLASS -> if (dark) Color(0xFF666278) else Color.White
+    }.map { it.copy(alpha = it.alpha * alpha) }
+    val edge = when {
+        deepSeek -> colors.border
+        previewGlass && user -> GlassTints.border(light)
+        previewGlass -> Color.Transparent
+        style == OrbisBubbleStyle.STARS -> if (dark) Color(0xFF897453) else Color(0xFFE3CFAD)
+        style == OrbisBubbleStyle.GLASS -> if (dark) Color(0xFF666278) else Color.White
         else -> colors.border
     }
     // No fixed HTML dimensions and no horizontal scrolling on the entire message: the
     // existing Markdown/code/WebView renderers retain their own sizing and gestures.
     Box(
         modifier = modifier
-            .then(if (alpha > 0f && !deepSeek) Modifier.shadow(2.dp * alpha, shape, clip = false,
-                ambientColor = Color.Black.copy(alpha = alpha),
-                spotColor = Color.Black.copy(alpha = alpha)) else Modifier)
+            .then(
+                if (previewGlass && user) Modifier.shadow(10.dp * alpha, shape, clip = false,
+                    ambientColor = Color(0xFF464F5C).copy(alpha = .11f * alpha),
+                    spotColor = Color(0xFF464F5C).copy(alpha = .05f * alpha))
+                else if (alpha > 0f && !deepSeek) Modifier.shadow(2.dp * alpha, shape, clip = false,
+                    ambientColor = Color.Black.copy(alpha = alpha),
+                    spotColor = Color.Black.copy(alpha = alpha)) else Modifier
+            )
             .clip(shape)
-            .then(if (alpha > 0f) Modifier
-                .background(Brush.linearGradient(backgroundColors))
-                .border(0.75.dp, edge.copy(alpha = 0.75f * alpha), shape) else Modifier)
+            .then(
+                when {
+                    previewGlass && !user -> Modifier
+                    alpha <= 0f -> Modifier
+                    else -> Modifier
+                        .background(Brush.linearGradient(backgroundColors))
+                        .border(0.75.dp, edge.copy(alpha = edge.alpha * alpha), shape)
+                }
+            )
             .drawBehind {
+                if (previewGlass && user && alpha > 0f) {
+                    drawRect(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(GlassTints.highlight(light), Color.Transparent),
+                            startY = 0f,
+                            endY = 1.6.dp.toPx(),
+                        )
+                    )
+                }
                 val decorationColor = edge.copy(alpha = edge.alpha * alpha)
                 if (alpha > 0f && style == OrbisBubbleStyle.BOOK) {
                     val atStart = !user
@@ -125,7 +154,10 @@ internal fun OrbisMessageBubble(
             LocalOrbisChatTextColor provides options.chatTextColor?.let { Color(it) },
         ) {
             Column(
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                modifier = Modifier.padding(
+                    horizontal = if (previewGlass && !user) 0.dp else 16.dp,
+                    vertical = if (previewGlass && !user) 2.dp else 12.dp,
+                ),
                 verticalArrangement = Arrangement.spacedBy(6.dp),
                 content = content,
             )

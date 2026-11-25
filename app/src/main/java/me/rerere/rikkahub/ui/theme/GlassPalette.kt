@@ -20,8 +20,8 @@ object ZoePalette {
         tintedPanel = Color(0xFFEEF2F6),
         ink = Color(0xFF2F3944),
         mutedInk = Color(0xFF5E6A77),
-        border = Color(0xFFD8CDBF),
-        accent = Color(0xFF4C6173),
+        border = Color(0xFFE3E1DC),
+        accent = Color(0xFF64809C),
         onAccent = Color(0xFFFFFFFF),
         sand = Color(0xFFE3D8C9),
         onSand = Color(0xFF6B5744),
@@ -60,8 +60,8 @@ object ZoePalette {
 /** Glass fill tokens derived from a palette entry so every surface stays consistent. */
 object GlassTints {
 
-    fun top(light: Boolean): Color = if (light) Color(0xB3FFFFFF) else Color(0x664A5563)
-    fun bottom(light: Boolean): Color = if (light) Color(0x57FFFFFF) else Color(0x4D222931)
+    fun top(light: Boolean): Color = if (light) Color(0xCCFFFFFF) else Color(0x9954606F)
+    fun bottom(light: Boolean): Color = if (light) Color(0x94FFFFFF) else Color(0x7A283039)
     fun border(light: Boolean): Color = if (light) Color(0xC7FFFFFF) else Color(0x3DC6D6E5)
     fun highlight(light: Boolean): Color = if (light) Color(0xEBFFFFFF) else Color(0x1FFFFFFF)
     fun scrim(light: Boolean): Color = if (light) Color(0x44181D22) else Color(0x66000000)
