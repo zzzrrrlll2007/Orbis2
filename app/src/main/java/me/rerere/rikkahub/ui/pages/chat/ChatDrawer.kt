@@ -236,13 +236,13 @@ fun ChatDrawerContent(
 
     ModalDrawerSheet(
         modifier = Modifier.width(drawerWidth),
-        drawerShape = if (BuildConfig.ORBIS_ENABLED) RoundedCornerShape(0.dp) else RoundedCornerShape(topStart = 28.dp, bottomStart = 28.dp),
+        drawerShape = RoundedCornerShape(topEnd = 28.dp, bottomEnd = 28.dp),
         drawerContainerColor = colors.page,
         drawerContentColor = colors.ink,
     ) {
         Column(
             modifier = Modifier.fillMaxSize()
-                .background(Brush.verticalGradient(listOf(colors.panel, colors.page)))
+                .background(Brush.verticalGradient(listOf(colors.panel.copy(alpha = .94f), colors.page.copy(alpha = .98f))))
                 .padding(horizontal = 12.dp, vertical = if (BuildConfig.ORBIS_ENABLED || compactLayout) 6.dp else 12.dp),
             verticalArrangement = Arrangement.spacedBy(if (BuildConfig.ORBIS_ENABLED || compactLayout) 6.dp else 10.dp),
         ) {
