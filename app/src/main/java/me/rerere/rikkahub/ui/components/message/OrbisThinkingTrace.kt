@@ -51,12 +51,12 @@ fun OrbisThinkingTrace(
         modifier = modifier
             .shadow(if (light) 4.dp else 0.dp, shape, clip = false)
             .clip(shape)
-            // 预览图的 .trace：极淡的玻璃底，让这一行能浮在水彩纸上面而不抢正文。
+            // 预览图的 .trace：接近纸白的一行胶囊。不做半透明——底下就是正文，透过去会糊。
             .background(
                 Brush.verticalGradient(
                     listOf(
-                        GlassTints.top(light).copy(alpha = if (light) .62f else .52f),
-                        GlassTints.bottom(light).copy(alpha = if (light) .44f else .38f),
+                        GlassTints.top(light),
+                        GlassTints.bottom(light),
                     )
                 )
             )

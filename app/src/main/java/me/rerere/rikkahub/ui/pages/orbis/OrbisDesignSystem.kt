@@ -405,9 +405,9 @@ fun OrbisHeaderGlassPill(
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(24.dp),
-        color = colors.panel.copy(alpha = .56f),
+        color = colors.panel.copy(alpha = .92f),
         contentColor = colors.ink,
-        border = BorderStroke(1.dp, colors.border.copy(alpha = .55f)),
+        border = BorderStroke(1.dp, colors.border.copy(alpha = .9f)),
     ) {
         Row(modifier = Modifier.padding(horizontal = 4.dp), verticalAlignment = verticalAlignment, content = content)
     }

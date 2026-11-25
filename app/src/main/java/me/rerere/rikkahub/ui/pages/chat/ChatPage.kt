@@ -342,11 +342,9 @@ fun ChatPage(
         }
 
         else -> {
-            // Drawer opens from the right; only its container uses RTL. Chat and drawer
-            // content retain the actual language direction, not mirrored text/actions.
+            // 预览图的侧栏在左侧：☰ 在左上角，抽屉也从左边滑出。
             val contentDirection = LocalLayoutDirection.current
-            CompositionLocalProvider(LocalLayoutDirection provides
-                if (BuildConfig.ORBIS_ENABLED) LayoutDirection.Rtl else contentDirection) {
+            CompositionLocalProvider(LocalLayoutDirection provides contentDirection) {
             ModalNavigationDrawer(
                 drawerState = drawerState,
                 drawerContent = {
@@ -1027,7 +1025,7 @@ private fun TopBar(
                 // 预览图：☰ 在最左，标题块居中加粗，其余入口一律靠右、全部是 18dp 细线图标。
                 if (!bigScreen) OrbisHeaderIconButton(onClick = { scope.launch { drawerState.open() } },
                     backgroundOpacity = headerOpacity) {
-                    Icon(HugeIcons.Menu03, "打开右侧会话栏")
+                    Icon(HugeIcons.Menu03, "打开侧栏")
                 }
                 Box(Modifier.weight(1f).heightIn(min = 44.dp).clickable { openTitleEditor() },
                     contentAlignment = Alignment.Center) {

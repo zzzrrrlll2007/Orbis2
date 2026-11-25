@@ -35,7 +35,11 @@ internal fun OrbisDrawerPages(
     val scroll = rememberScrollState()
     val railScroll = rememberScrollState()
     val colors = OrbisTheme.colors
-    LaunchedEffect(drawerOpen, ownerKey) { if (drawerOpen == false) showAppearance = false }
+    // 每次打开都从顶部开始：否则上次滚动会停在「工具与玩」里，看不到导航 8 项。
+    LaunchedEffect(drawerOpen, ownerKey) {
+        if (drawerOpen == true) railScroll.scrollTo(0)
+        if (drawerOpen == false) showAppearance = false
+    }
     BackHandler(enabled = showAppearance && drawerOpen != false) { showAppearance = false }
     Column(modifier, verticalArrangement = Arrangement.spacedBy(6.dp)) {
         if (showAppearance) {
@@ -51,8 +55,8 @@ internal fun OrbisDrawerPages(
             newConversation()
             // 导航 + 工具与玩：整块限高滚动，给下面的会话列表留出空间。
             Column(
-                Modifier.fillMaxWidth().heightIn(max = 300.dp).verticalScroll(railScroll),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
+                Modifier.fillMaxWidth().heightIn(max = 420.dp).verticalScroll(railScroll),
+                verticalArrangement = Arrangement.spacedBy(2.dp),
             ) { leading() }
             history()
             Column(

@@ -38,10 +38,11 @@ internal fun ChatComposerSurface(
         val light = !LocalDarkMode.current
         Box(
             modifier = modifier
+                // 阴影只做一圈很淡的托底：重投影在纸色上会糊成一条灰黑色的边。
                 .shadow(
-                    elevation = 12.dp, shape = shape, clip = false,
-                    ambientColor = Color(0xFF464F5C).copy(alpha = .12f),
-                    spotColor = Color(0xFF464F5C).copy(alpha = .12f),
+                    elevation = 8.dp, shape = shape, clip = false,
+                    ambientColor = Color(0xFF464F5C).copy(alpha = .07f),
+                    spotColor = Color(0xFF464F5C).copy(alpha = .07f),
                 )
                 .clip(shape)
                 .background(Brush.verticalGradient(listOf(GlassTints.top(light), GlassTints.bottom(light))))

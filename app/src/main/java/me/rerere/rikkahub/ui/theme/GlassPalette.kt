@@ -60,9 +60,11 @@ object ZoePalette {
 /** Glass fill tokens derived from a palette entry so every surface stays consistent. */
 object GlassTints {
 
-    fun top(light: Boolean): Color = if (light) Color(0xCCFFFFFF) else Color(0x9954606F)
-    fun bottom(light: Boolean): Color = if (light) Color(0x94FFFFFF) else Color(0x7A283039)
-    fun border(light: Boolean): Color = if (light) Color(0xC7FFFFFF) else Color(0x3DC6D6E5)
-    fun highlight(light: Boolean): Color = if (light) Color(0xEBFFFFFF) else Color(0x1FFFFFFF)
+    // Compose 没有 backdrop-filter：半透明面板下面就是正文本身，透过去会“脏”。
+    // 所以这里把玻璃做成接近不透明的水彩纸白（仍保留渐变、1dp 白边和顶部高光）。
+    fun top(light: Boolean): Color = if (light) Color(0xFDFFFFFF) else Color(0xFA5E6A76)
+    fun bottom(light: Boolean): Color = if (light) Color(0xF8FBF8F3) else Color(0xF52B333C)
+    fun border(light: Boolean): Color = if (light) Color(0xF2FFFFFF) else Color(0x40C6D6E5)
+    fun highlight(light: Boolean): Color = if (light) Color(0xFFFFFFFF) else Color(0x1FFFFFFF)
     fun scrim(light: Boolean): Color = if (light) Color(0x44181D22) else Color(0x66000000)
 }

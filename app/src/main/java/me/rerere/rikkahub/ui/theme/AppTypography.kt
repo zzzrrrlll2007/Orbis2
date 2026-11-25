@@ -36,12 +36,10 @@ private val MixedScriptLine = LineHeightStyle(
 )
 
 private fun familyFor(mode: TypefaceMode): FontFamily = when (mode) {
-    // TODO(fonts): once res/font/lxgw_wenkai_regular.ttf ships, replace this branch with
-    // FontFamily(Font(R.font.lxgw_wenkai_regular, FontWeight.Normal), Font(R.font.lxgw_wenkai_medium, FontWeight.Medium))
-    // and delete FontFamily.Cursive. Latin glyphs come from the same file, which is what
-    // keeps the mixed CJK/Latin baseline aligned; a Latin-only family would fall back to
-    // the system sans for Chinese.
-    TypefaceMode.HANDWRITING -> FontFamily.Cursive
+    // 预览图的正文是「宋体 / Noto Serif CJK」这一类阅读字体。
+    // FontFamily.Cursive 在多数国产 ROM 上并没有中文手写体，会静默退化，看起来像"没改"，
+    // 所以这里显式用 Serif，保证任何设备上正文都是同一套阅读字形。
+    TypefaceMode.HANDWRITING -> FontFamily.Serif
     TypefaceMode.SONG -> FontFamily.Serif
     TypefaceMode.SYSTEM -> FontFamily.Default
 }
@@ -61,15 +59,26 @@ fun appTypography(mode: TypefaceMode = TypefaceMode.HANDWRITING): M3Typography {
             lineHeightStyle = MixedScriptLine,
         )
 
+    // 预览图的 UI 文案（顶栏小字、导航副标题、按钮、chip）用的是 Inter 一类无衬线，
+    // 只有正文才是阅读宋体。这里把 label/title 收回系统无衬线，和预览的层级一致。
+    fun TextStyle.ui(size: Float, lineHeight: Float, weight: FontWeight = FontWeight.Medium) =
+        copy(
+            fontFamily = FontFamily.Default,
+            fontSize = size.sp,
+            lineHeight = lineHeight.sp,
+            fontWeight = weight,
+            letterSpacing = 0.2.sp,
+        )
+
     return base.copy(
         // Chat body: the only size the redesign deliberately grows (15 → 17.5).
         bodyLarge = base.bodyLarge.chat(17.5f, 32f),
         bodyMedium = base.bodyMedium.chat(16f, 27f),
         bodySmall = base.bodySmall.chat(13.5f, 23f),
-        labelLarge = base.labelLarge.chat(14f, 20f, FontWeight.Medium),
-        labelMedium = base.labelMedium.chat(12f, 17f, FontWeight.Medium),
-        labelSmall = base.labelSmall.chat(11f, 16f, FontWeight.Medium),
-        titleLarge = base.titleLarge.chat(20f, 28f, FontWeight.Medium),
-        titleMedium = base.titleMedium.chat(16f, 24f, FontWeight.Medium),
+        labelLarge = base.labelLarge.ui(14f, 20f),
+        labelMedium = base.labelMedium.ui(12f, 17f),
+        labelSmall = base.labelSmall.ui(11f, 16f),
+        titleLarge = base.titleLarge.ui(20f, 28f),
+        titleMedium = base.titleMedium.ui(16f, 24f),
     )
 }

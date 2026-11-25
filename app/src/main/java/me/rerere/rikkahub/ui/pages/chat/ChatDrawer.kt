@@ -167,8 +167,8 @@ fun ChatDrawerContent(
         }
     }
     val compactLayout = configuration.screenHeightDp < 560 || LocalDensity.current.fontScale > 1.5f
-    val drawerWidth = (configuration.screenWidthDp.dp * if (BuildConfig.ORBIS_ENABLED) .88f else .92f)
-        .coerceAtMost(if (BuildConfig.ORBIS_ENABLED) 360.dp else 380.dp)
+    val drawerWidth = (configuration.screenWidthDp.dp * if (BuildConfig.ORBIS_ENABLED) .84f else .92f)
+        .coerceAtMost(if (BuildConfig.ORBIS_ENABLED) 340.dp else 380.dp)
     val selectedAssistant = settings.assistants.firstOrNull { it.id == current.assistantId }
     val assistantName = selectedAssistant?.name?.ifBlank { null }
     val repo = koinInject<ConversationRepository>()
@@ -254,7 +254,7 @@ fun ChatDrawerContent(
     ) {
         Column(
             modifier = Modifier.fillMaxSize()
-                .background(Brush.verticalGradient(listOf(colors.panel.copy(alpha = .74f), colors.page.copy(alpha = .86f))))
+                .background(Brush.verticalGradient(listOf(colors.panel.copy(alpha = .97f), colors.page.copy(alpha = .99f))))
                 .padding(horizontal = 12.dp, vertical = if (BuildConfig.ORBIS_ENABLED || compactLayout) 6.dp else 12.dp),
             verticalArrangement = Arrangement.spacedBy(if (BuildConfig.ORBIS_ENABLED || compactLayout) 6.dp else 10.dp),
         ) {
@@ -430,6 +430,7 @@ fun ChatDrawerContent(
                             navController = navController,
                             conversationId = current.id,
                             onClose = onClose,
+                            drawerOpen = drawerOpen,
                         )
                     },
                     foot = {
@@ -1229,9 +1230,12 @@ private fun OrbisDrawerRail(
     navController: Navigator,
     conversationId: Uuid,
     onClose: (() -> Unit)?,
+    drawerOpen: Boolean? = null,
 ) {
     val openHome = LocalOpenOrbisHome.current
     var toolsOpen by remember { mutableStateOf(false) }
+    // 每次重新打开侧栏都收起「工具与玩」，总是先看到导航 8 项。
+    LaunchedEffect(drawerOpen) { if (drawerOpen == true) toolsOpen = false }
     val rows = listOf(
         OrbisRailEntry(HugeIcons.Message01, "聊天", "返回当前会话") {
             onClose?.invoke(); navigateToChatPage(navController, conversationId)
@@ -1286,10 +1290,10 @@ private fun OrbisRailSearch() {
     val colors = OrbisTheme.colors
     Row(
         modifier = Modifier.fillMaxWidth()
-            .padding(top = 8.dp, bottom = 8.dp)
+            .padding(top = 6.dp, bottom = 6.dp)
             .clip(RoundedCornerShape(13.dp))
-            .background(colors.panel.copy(alpha = .58f))
-            .padding(horizontal = 12.dp, vertical = 9.dp),
+            .background(colors.panel.copy(alpha = .92f))
+            .padding(horizontal = 12.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(9.dp),
     ) {
@@ -1332,7 +1336,7 @@ private fun OrbisRailRow(
             .fillMaxWidth()
             .clip(RoundedCornerShape(11.dp))
             .clickable(role = Role.Button, onClick = onClick)
-            .padding(start = 10.dp + indent, end = 10.dp, top = 6.dp, bottom = 6.dp),
+            .padding(start = 10.dp + indent, end = 10.dp, top = 4.dp, bottom = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(11.dp),
     ) {
