@@ -80,6 +80,7 @@ import me.rerere.hugeicons.stroke.Cancel01
 import me.rerere.hugeicons.stroke.LeftToRightListBullet
 import me.rerere.hugeicons.stroke.Menu03
 import me.rerere.hugeicons.stroke.MessageAdd01
+import me.rerere.hugeicons.stroke.MoreHorizontal
 import me.rerere.rikkahub.R
 import me.rerere.rikkahub.BuildConfig
 import me.rerere.rikkahub.Screen
@@ -1035,20 +1036,13 @@ private fun TopBar(
                             fontWeight = FontWeight.Bold, textAlign = TextAlign.Center,
                             color = OrbisTheme.colors.ink, overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.fillMaxWidth())
-                        if (conversation.title.isNotBlank() && conversation.title != assistant.name)
-                            Text(conversation.title, fontSize = 10.sp, lineHeight = 14.sp, maxLines = 1,
-                                textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth(),
-                                color = OrbisTheme.colors.mutedInk, overflow = TextOverflow.Ellipsis)
+                        // 预览图的第二行：在线状态 + 上下文占用，12px 出头的小字。
+                        Text("在线 · 上下文 ${budget.percentLabel}",
+                            fontSize = 9.5.sp, lineHeight = 13.sp, maxLines = 1,
+                            textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth(),
+                            color = OrbisTheme.colors.mutedInk, overflow = TextOverflow.Ellipsis)
                     }
                 }
-                if (assistant.orbisBodyEnabled && !conversation.isConsultation) {
-                    me.rerere.rikkahub.ui.pages.orbis.OrbisBodyEntry(assistant.id.toString(), conversation.id.toString())
-                }
-                if (!conversation.isConsultation) {
-                    me.rerere.rikkahub.ui.pages.orbis.OrbisWebEntry(assistant.id.toString(), conversation.id.toString())
-                }
-                if (!conversation.isConsultation) me.rerere.rikkahub.ui.pages.orbis.community.CommunityEntry(assistant.id.toString())
-                me.rerere.rikkahub.ui.pages.orbis.music.MusicEntry()
                 OrbisHeaderControlSurface(headerOpacity, shape = CircleShape) {
                     OrbisContextBudgetButton(
                         budget = budget,
@@ -1063,7 +1057,7 @@ private fun TopBar(
                     )
                 }
                 OrbisHeaderIconButton(onClick = onClickMenu, backgroundOpacity = headerOpacity) {
-                    Icon(if (previewMode) HugeIcons.Cancel01 else HugeIcons.LeftToRightListBullet,
+                    Icon(if (previewMode) HugeIcons.Cancel01 else HugeIcons.MoreHorizontal,
                         "切换对话目录")
                 }
             }

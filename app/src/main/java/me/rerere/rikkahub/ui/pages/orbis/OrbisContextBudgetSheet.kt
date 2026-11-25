@@ -82,7 +82,8 @@ internal fun OrbisContextBudgetButton(
     if (!BuildConfig.ORBIS_ENABLED) return
     var open by rememberSaveable { mutableStateOf(false) }
     val colors = OrbisTheme.colors
-    Box(Modifier.size(48.dp).clip(CircleShape)
+    // 预览图顶栏只留一个小圆环：不再把「提醒关 / 62%」写进环里，信息留在语义和无障碍标签里。
+    Box(Modifier.size(40.dp).clip(CircleShape)
         .clickable(role = Role.Button, onClickLabel = "打开上下文与压缩") {
             onOpen?.invoke()
             open = true
@@ -90,20 +91,14 @@ internal fun OrbisContextBudgetButton(
         .testTag("orbis-context-budget-button")
         .semantics { contentDescription = "上下文，提醒阈值 ${budget.thresholdLabel}，参考用量 ${budget.percentLabel}" },
         contentAlignment = Alignment.Center) {
-        Canvas(Modifier.size(44.dp)) {
-            val stroke = 3.dp.toPx()
-            drawCircle(colors.border, radius = size.minDimension / 2 - stroke / 2, style = Stroke(stroke))
+        Canvas(Modifier.size(22.dp)) {
+            val stroke = 1.6.dp.toPx()
+            drawCircle(colors.border.copy(alpha = .8f), radius = size.minDimension / 2 - stroke / 2, style = Stroke(stroke))
             budget.inputRatio?.let { ratio ->
-                drawArc(colors.onSand, -90f, (360 * ratio.coerceIn(0.0, 1.0)).toFloat(), false,
+                drawArc(colors.accent, -90f, (360 * ratio.coerceIn(0.0, 1.0)).toFloat(), false,
                     topLeft = androidx.compose.ui.geometry.Offset(stroke / 2, stroke / 2),
                     size = androidx.compose.ui.geometry.Size(size.width - stroke, size.height - stroke), style = Stroke(stroke))
             }
-        }
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(budget.thresholdLabel, fontSize = 7.sp, lineHeight = 9.sp,
-                fontWeight = FontWeight.Medium, color = colors.mutedInk)
-            Text(budget.percentLabel, fontSize = 10.sp, lineHeight = 12.sp,
-                fontWeight = FontWeight.ExtraBold, color = colors.ink)
         }
     }
     if (open) OrbisContextBudgetSheet(

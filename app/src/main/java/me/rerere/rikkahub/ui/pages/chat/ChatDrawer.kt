@@ -429,6 +429,9 @@ fun ChatDrawerContent(
                         OrbisDrawerRail(
                             navController = navController,
                             conversationId = current.id,
+                            assistantId = current.assistantId.toString(),
+                            consultation = current.isConsultation,
+                            bodyEnabled = selectedAssistant?.orbisBodyEnabled == true,
                             onClose = onClose,
                             drawerOpen = drawerOpen,
                         )
@@ -1229,6 +1232,9 @@ private class OrbisRailEntry(
 private fun OrbisDrawerRail(
     navController: Navigator,
     conversationId: Uuid,
+    assistantId: String,
+    consultation: Boolean,
+    bodyEnabled: Boolean,
     onClose: (() -> Unit)?,
     drawerOpen: Boolean? = null,
 ) {
@@ -1264,6 +1270,22 @@ private fun OrbisDrawerRail(
     )
     Column(Modifier.fillMaxWidth()) {
         OrbisRailSearch()
+        // 顶栏收进预览的「☰ + 标题 + ⋯」之后，网页 / 社区 / 音乐 / 身体这些入口放这里，
+        // 仍然一点就开原来的面板，只是不占顶栏。
+        Row(
+            Modifier.fillMaxWidth().padding(horizontal = 2.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(2.dp),
+        ) {
+            if (!consultation) {
+                me.rerere.rikkahub.ui.pages.orbis.OrbisWebEntry(assistantId, conversationId.toString())
+                me.rerere.rikkahub.ui.pages.orbis.community.CommunityEntry(assistantId)
+            }
+            me.rerere.rikkahub.ui.pages.orbis.music.MusicEntry()
+            if (bodyEnabled && !consultation) {
+                me.rerere.rikkahub.ui.pages.orbis.OrbisBodyEntry(assistantId, conversationId.toString())
+            }
+        }
         OrbisRailLabel("导航")
         rows.forEach { entry -> OrbisRailRow(entry.icon, entry.title, entry.subtitle, onClick = entry.action) }
         OrbisRailSep()
