@@ -223,7 +223,8 @@ fun ChatMessage(
     var showActionsSheet by remember { mutableStateOf(false) }
     var showSelectCopySheet by remember { mutableStateOf(false) }
     // 思考步骤抽屉：对话流里只留一行入口，完整推理在这里打开。
-    var thinkingSheet by remember { mutableStateOf<List<ThinkingStepUi>?>(null) }
+    // 用 MutableState 而不是 `by` 委托：下面要在 fastForEach 的 lambda 里赋值。
+    val thinkingSheetState = remember { mutableStateOf<List<ThinkingStepUi>?>(null) }
     val navController = LocalNavController.current
     val context = LocalContext.current
     val colorScheme = MaterialTheme.colorScheme
@@ -388,12 +389,12 @@ fun ChatMessage(
         // 数据仍随消息保存，只是不再默认展示；需要时把 ChatMessageNerdLine(message = message) 放回来即可。
 
     }
-    thinkingSheet?.let { steps ->
+    thinkingSheetState.value?.let { steps ->
         OrbisThinkingSheet(
             visible = true,
             steps = steps,
             modelName = model?.displayName?.takeIf { it.isNotBlank() },
-            onDismiss = { thinkingSheet = null },
+            onDismiss = { thinkingSheetState.value = null },
         )
     }
     if (showActionsSheet) {
@@ -528,7 +529,7 @@ internal fun MessagePartsBlock(
                         if (stepsUi.isNotEmpty()) OrbisThinkingTrace(
                             durationSeconds = seconds.takeIf { it > 0L },
                             stepCount = stepsUi.size,
-                            onClick = { thinkingSheet = stepsUi },
+                            onClick = { thinkingSheetState.value = stepsUi },
                             modifier = Modifier.animateContentSize(),
                         )
                     } else {
