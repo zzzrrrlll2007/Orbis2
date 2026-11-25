@@ -360,6 +360,7 @@ fun ChatDrawerContent(
             }
 
             if (BuildConfig.ORBIS_ENABLED) {
+                OrbisDrawerNavList(navController = navController, onClose = onClose)
                 HorizontalDivider(color = colors.border)
                 OrbisDrawerPages(
                     ownerKey = current.assistantId.toString(), drawerOpen = drawerOpen,
@@ -1179,6 +1180,43 @@ private fun AssistantItem(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
+            }
+        }
+    }
+}
+/** Zoe：抽屉顶部的「导航」列（左对齐、细线分隔），入口与原北斗导航一致。 */
+@Composable
+private fun OrbisDrawerNavList(
+    navController: Navigator,
+    onClose: (() -> Unit)?,
+) {
+    val colors = OrbisTheme.colors
+    val entries = listOf(
+        Triple("群聊", "AI 群聊 · 可选 TechHub", Screen.OrbisGroups),
+        Triple("记忆星图", "本机与 ST · 只读元信息", Screen.OrbisMemoryAtlas),
+        Triple("后台与权限", "哨兵与手机设备能力", Screen.OrbisPhone),
+        Triple("系统设置", "模型、MCP、声音与数据", Screen.Setting),
+    )
+    Column(Modifier.fillMaxWidth().padding(top = 6.dp, bottom = 2.dp)) {
+        Text(
+            "导航",
+            fontSize = 10.sp,
+            letterSpacing = 1.5.sp,
+            color = colors.mutedInk.copy(alpha = .72f),
+            modifier = Modifier.padding(start = 8.dp, top = 2.dp, bottom = 4.dp),
+        )
+        entries.forEach { (title, subtitle, screen) ->
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        onClose?.invoke()
+                        navController.navigate(screen)
+                    }
+                    .padding(horizontal = 8.dp, vertical = 7.dp),
+            ) {
+                Text(title, fontSize = 13.5.sp, color = colors.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(subtitle, fontSize = 10.sp, color = colors.mutedInk, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
         }
     }
