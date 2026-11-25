@@ -394,6 +394,25 @@ fun OrbisHeaderIconButton(
     }
 }
 
+/** 预览图的顶栏：一条横贯的玻璃药丸，里面的控件不再各自成块。 */
+@Composable
+fun OrbisHeaderGlassPill(
+    modifier: Modifier = Modifier,
+    verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
+    content: @Composable RowScope.() -> Unit,
+) {
+    val colors = OrbisTheme.colors
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(24.dp),
+        color = colors.panel.copy(alpha = .56f),
+        contentColor = colors.ink,
+        border = BorderStroke(1.dp, colors.border.copy(alpha = .55f)),
+    ) {
+        Row(modifier = Modifier.padding(horizontal = 4.dp), verticalAlignment = verticalAlignment, content = content)
+    }
+}
+
 /** Fade only the backdrop; preserve the selected theme, outline and content contrast. */
 @Composable
 internal fun OrbisHeaderControlSurface(
@@ -406,7 +425,7 @@ internal fun OrbisHeaderControlSurface(
     val opacity = backgroundOpacity.takeIf { it.isFinite() }?.coerceIn(0f, 1f) ?: .75f
     Surface(modifier = modifier, shape = shape,
         color = colors.raisedPanel.copy(alpha = opacity), contentColor = colors.ink,
-        border = BorderStroke(1.dp, colors.border.copy(alpha = .65f))) {
+        border = BorderStroke(1.dp, colors.border.copy(alpha = .65f * opacity))) {
         content()
     }
 }

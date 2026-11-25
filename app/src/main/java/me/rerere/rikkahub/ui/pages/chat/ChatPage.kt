@@ -1014,13 +1014,14 @@ private fun TopBar(
                 requestPreparedAtMillis = requestUsage?.preparedAtMillis,
             )
         }
-        val headerOpacity = settings.displaySetting.appearanceForStyle(LocalOrbisDeepSeekStyle.current).headerOpacity
+        // 顶栏现在是一整条玻璃：内部控件不再各自画底和边。
+        val headerOpacity = 0f
         // Photos affect system status-icon contrast, not the selected day/night control palette.
         OrbisVisualTheme {
         Column {
-            Row(Modifier.fillMaxWidth().statusBarsPadding().heightIn(min = 46.dp)
+            me.rerere.rikkahub.ui.pages.orbis.OrbisHeaderGlassPill(Modifier.fillMaxWidth().statusBarsPadding().heightIn(min = 46.dp)
                 .windowInsetsPadding(WindowInsets.displayCutout.only(WindowInsetsSides.Horizontal))
-                .padding(horizontal = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+                .padding(horizontal = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                 Row(Modifier.weight(1f).heightIn(min = 44.dp), verticalAlignment = Alignment.CenterVertically) {
                     Box(Modifier.weight(1f).clickable { openTitleEditor() }, contentAlignment = Alignment.Center) {
                     OrbisHeaderControlSurface(headerOpacity) {
