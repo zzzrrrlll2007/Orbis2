@@ -548,15 +548,15 @@ fun OrbisBottomDock(
     val deepSeekStyle = LocalOrbisDeepSeekStyle.current
     val themedDock = LocalChatTheme.current != null || deepSeekStyle || LocalOrbisSeason.current != OrbisSeason.NONE
     val starSurface = LocalChatTheme.current?.body?.chrome?.surfaceFor("star")
-    val starColor = if (themedDock) colors.star else Color(0xFFFFE3A7)
+    val starColor = colors.star
     Box(modifier.fillMaxWidth().windowInsetsPadding(windowInsets)
         .padding(start = 14.dp, end = 14.dp, bottom = 10.dp)) {
         // Reserve the protruding star inside layout bounds, so all 66 dp remain tappable.
         Box(Modifier.fillMaxWidth().height(72.dp)) {
             ThemeChromeSurface(role = "dock", radius = 28, modifier = Modifier.fillMaxWidth().height(60.dp).align(Alignment.BottomCenter),
                 shape = RoundedCornerShape(28.dp),
-                color = if (themedDock || LocalDarkMode.current) colors.dock else Color(0xE81F283D),
-                contentColor = if (themedDock) colors.onDock else Color.White.copy(alpha = .76f),
+                color = colors.dock,
+                contentColor = colors.onDock,
                 shadowElevation = if (deepSeekStyle) 0.dp else 16.dp) {
                 Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
@@ -572,8 +572,8 @@ fun OrbisBottomDock(
                         IconButton(onClick = onOpenNavigation,
                             modifier = Modifier.size(68.dp, 48.dp)
                                 .semantics { contentDescription = navigationDescription }) {
-                            OrbisConstellation(Modifier.size(62.dp, 42.dp),
-                                color = if (themedDock) colors.star else Color(0xFFFFE0A0))
+                            OrbisConstellation(Modifier.size(52.dp, 36.dp),
+                                color = colors.star)
                         }
                     }
                 }
@@ -590,8 +590,7 @@ fun OrbisBottomDock(
                         OrbisStar(Modifier.size(24.dp),color=starColor)
                     }
                 } else Box(Modifier.fillMaxSize().background(Brush.linearGradient(
-                    if (themedDock) listOf(colors.homeButton, colors.homeButton)
-                    else listOf(Color(0xFF6982BA), Color(0xFF344B7C)))),
+                    listOf(colors.homeButton, colors.homeButton))),
                     contentAlignment = Alignment.Center) {
                     OrbisStar(Modifier.size(24.dp), color = starColor)
                 }
