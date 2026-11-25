@@ -662,8 +662,6 @@ private fun ChatPageContent(
                     },
                 )
                 }
-                if (BuildConfig.ORBIS_ENABLED && !WindowInsets.isImeVisible) OrbisChatDock(
-                    ownerAssistantId = conversation.assistantId.toString(), conversationId = conversation.id.toString())
                 }
             },
             containerColor = Color.Transparent,
