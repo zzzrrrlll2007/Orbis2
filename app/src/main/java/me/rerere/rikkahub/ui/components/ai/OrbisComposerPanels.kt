@@ -11,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
@@ -26,11 +27,9 @@ import me.rerere.rikkahub.ui.pages.orbis.OrbisInterfaceTheme
 @Composable
 internal fun OrbisComposerControls(content: @Composable ColumnScope.() -> Unit) {
     OrbisInterfaceTheme {
-        Surface(color = OrbisTheme.colors.panel, contentColor = OrbisTheme.colors.ink,
-            shape = RoundedCornerShape(16.dp), modifier = Modifier.testTag("orbis-composer-controls")) {
-            Column(Modifier.fillMaxWidth().padding(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp),
-                content = content)
-        }
+        // 预览图的输入区是一整块：工具行不再自己套一层卡片，直接落在输入条那张玻璃上。
+        Column(Modifier.fillMaxWidth().padding(top = 2.dp), verticalArrangement = Arrangement.spacedBy(6.dp),
+            content = content)
     }
 }
 
@@ -38,14 +37,16 @@ internal fun OrbisComposerControls(content: @Composable ColumnScope.() -> Unit) 
 internal fun OrbisComposerTab(label: String, selected: Boolean = false, onClick: () -> Unit) {
     val colors = OrbisTheme.colors
     val deepSeek = LocalOrbisDeepSeekStyle.current
-    Box(Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp).clickable(role = Role.Button, onClick = onClick),
+    Box(Modifier.heightIn(min = 32.dp).clickable(role = Role.Button, onClick = onClick),
         contentAlignment = Alignment.Center) {
-        Surface(shape = RoundedCornerShape(10.dp),
-            color = if (selected) { if (deepSeek) colors.accent else colors.sand } else colors.raisedPanel,
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .4f))) {
-            Text(label, Modifier.padding(horizontal = 9.dp, vertical = 7.dp),
+        Surface(shape = RoundedCornerShape(999.dp),
+            color = if (selected) colors.panel.copy(alpha = if (deepSeek) .9f else .85f) else Color.Transparent,
+            border = if (selected)
+                BorderStroke(1.dp, colors.border.copy(alpha = .7f))
+            else null) {
+            Text(label, Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
                 fontSize = 11.sp, lineHeight = 14.sp,
-                color = if (selected) { if (deepSeek) colors.onAccent else colors.onSand } else colors.mutedInk)
+                color = if (selected) colors.ink else colors.mutedInk)
         }
     }
 }

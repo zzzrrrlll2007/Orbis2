@@ -296,10 +296,12 @@ private fun ConversationItem(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val focusManager = LocalFocusManager.current
-    val backgroundColor = if (selected) {
-        MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
-    } else {
-        Color.Transparent
+    val orbisColors = OrbisTheme.colors
+    val backgroundColor = when {
+        !selected -> Color.Transparent
+        // 预览图的选中态是一层很淡的玻璃，不是灰色大卡片。
+        orbis -> orbisColors.panel.copy(alpha = .62f)
+        else -> MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
     }
     var showDropdownMenu by remember {
         mutableStateOf(false)
@@ -322,32 +324,33 @@ private fun ConversationItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(min = 56.dp)
-                .padding(horizontal = if (orbis) 9.dp else 12.dp, vertical = 6.dp),
+                .heightIn(min = if (orbis) 40.dp else 56.dp)
+                .padding(horizontal = if (orbis) 10.dp else 12.dp, vertical = if (orbis) 5.dp else 6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (orbis) {
-                val colors = OrbisTheme.colors
-                val name = assistant?.name?.ifBlank { "AI" } ?: "AI"
-                UIAvatar(name, assistant?.avatar ?: Avatar.Emoji(name.take(1)), Modifier.size(32.dp))
+                // 预览图的会话行：小圆点 + 一行标题（搜索时多一行摘要）+ 右侧时间。
+                // 不再用头像、会话角标和重命名按钮——重命名仍在长按菜单里。
+                Box(Modifier.size(3.dp).clip(CircleShape)
+                    .background(orbisColors.mutedInk.copy(alpha = .5f)))
                 Spacer(Modifier.size(9.dp))
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                    Text(conversation.title.ifBlank { "新会话" }, fontSize = 12.sp, lineHeight = 16.sp,
-                        fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    Text(snippet ?: if (selected) "当前窗口 · 聊天记录保存在本机" else "本地会话 · 长按可置顶与整理",
-                        fontSize = 9.sp, lineHeight = 12.sp, color = colors.mutedInk,
-                        maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(conversation.title.ifBlank { "新会话" }, fontSize = 12.5.sp, lineHeight = 17.sp,
+                        maxLines = 1, overflow = TextOverflow.Ellipsis, color = orbisColors.ink)
+                    if (snippet != null) {
+                        Text(snippet, fontSize = 9.sp, lineHeight = 12.sp,
+                            color = orbisColors.mutedInk, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
                 }
-                Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                    Text(conversation.updateAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("MM-dd HH:mm")),
-                        fontSize = 8.sp, color = colors.mutedInk)
-                    Text(if (loading) "生成中" else if (conversation.isPinned) "主窗" else "会话",
-                        fontSize = 8.sp, color = colors.onSand,
-                        modifier = Modifier.clip(RoundedCornerShape(8.dp)).background(colors.sand).padding(horizontal = 6.dp, vertical = 2.dp))
+                if (loading) {
+                    Box(Modifier.size(4.dp).clip(CircleShape).background(orbisColors.accent))
+                    Spacer(Modifier.size(6.dp))
                 }
-                if (onRename != null) IconButton(onClick = { onRename(conversation) }, modifier = Modifier.size(48.dp)) {
-                    Icon(HugeIcons.PencilEdit01, "重命名 ${conversation.title.ifBlank { "此窗口" }}", Modifier.size(17.dp), tint = colors.onSand)
-                }
+                Text(
+                    text = conversation.updateAt.atZone(ZoneId.systemDefault())
+                        .format(DateTimeFormatter.ofPattern("MM-dd HH:mm")),
+                    fontSize = 9.sp, color = orbisColors.mutedInk.copy(alpha = .85f), maxLines = 1,
+                )
             } else {
             Text(
                 text = conversation.title.ifBlank { stringResource(id = R.string.chat_page_new_message) },
