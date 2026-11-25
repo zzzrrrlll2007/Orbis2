@@ -72,12 +72,12 @@ internal fun OrbisMessageBubble(
         )
     }
     // 预览图的玻璃规矩：只有「我」说的话是一块玻璃；AI 的回答直接落在纸面上，不套框。
-    val previewGlass = !deepSeek && style != OrbisBubbleStyle.STARS && style != OrbisBubbleStyle.BOOK
+    val previewGlass = style != OrbisBubbleStyle.STARS && style != OrbisBubbleStyle.BOOK
     val light = !dark
     val backgroundColors = when {
-        deepSeek -> List(2) { if (user) colors.tintedPanel else colors.panel }
         previewGlass && user -> listOf(GlassTints.top(light), GlassTints.bottom(light))
         previewGlass -> listOf(Color.Transparent, Color.Transparent)
+        deepSeek -> List(2) { if (user) colors.tintedPanel else colors.panel }
         dark && user -> listOf(Color(0xFF554153), Color(0xFF3D435F))
         dark -> listOf(Color(0xFF2D2E43), Color(0xFF252738))
         user && style == OrbisBubbleStyle.GLASS -> listOf(Color(0xFFE0CEE8), Color(0xFFE0CEE8))
@@ -86,9 +86,9 @@ internal fun OrbisMessageBubble(
         else -> listOf(Color.White, Color(0xFFFFFDFC))
     }.map { it.copy(alpha = it.alpha * alpha) }
     val edge = when {
-        deepSeek -> colors.border
         previewGlass && user -> GlassTints.border(light)
         previewGlass -> Color.Transparent
+        deepSeek -> colors.border
         style == OrbisBubbleStyle.STARS -> if (dark) Color(0xFF897453) else Color(0xFFE3CFAD)
         style == OrbisBubbleStyle.GLASS -> if (dark) Color(0xFF666278) else Color.White
         else -> colors.border
