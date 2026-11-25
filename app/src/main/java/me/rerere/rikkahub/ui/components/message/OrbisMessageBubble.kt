@@ -72,7 +72,7 @@ internal fun OrbisMessageBubble(
         )
     }
     // 预览图的玻璃规矩：只有「我」说的话是一块玻璃；AI 的回答直接落在纸面上，不套框。
-    val previewGlass = style != OrbisBubbleStyle.STARS && style != OrbisBubbleStyle.BOOK
+    val previewGlass = true
     val light = !dark
     val backgroundColors = when {
         previewGlass && user -> listOf(GlassTints.top(light), GlassTints.bottom(light))
@@ -98,12 +98,18 @@ internal fun OrbisMessageBubble(
     Box(
         modifier = modifier
             .then(
-                if (previewGlass && user) Modifier.shadow(10.dp * alpha, shape, clip = false,
-                    ambientColor = Color(0xFF464F5C).copy(alpha = .11f * alpha),
-                    spotColor = Color(0xFF464F5C).copy(alpha = .05f * alpha))
-                else if (alpha > 0f && !deepSeek) Modifier.shadow(2.dp * alpha, shape, clip = false,
-                    ambientColor = Color.Black.copy(alpha = alpha),
-                    spotColor = Color.Black.copy(alpha = alpha)) else Modifier
+                when {
+                    // 预览图：只有「我」的气泡有投影。AI 的结构完全透明，
+                    // 连 2dp 的黑色 elevation 阴影也不能留——空形状的阴影看起来就是一根边线。
+                    previewGlass && user -> Modifier.shadow(10.dp * alpha, shape, clip = false,
+                        ambientColor = Color(0xFF464F5C).copy(alpha = .11f * alpha),
+                        spotColor = Color(0xFF464F5C).copy(alpha = .05f * alpha))
+                    previewGlass -> Modifier
+                    alpha > 0f && !deepSeek -> Modifier.shadow(2.dp * alpha, shape, clip = false,
+                        ambientColor = Color.Black.copy(alpha = alpha),
+                        spotColor = Color.Black.copy(alpha = alpha))
+                    else -> Modifier
+                }
             )
             .clip(shape)
             .then(
