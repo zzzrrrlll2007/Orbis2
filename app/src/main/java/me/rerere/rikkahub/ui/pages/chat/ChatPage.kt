@@ -1020,21 +1020,18 @@ private fun TopBar(
         // Photos affect system status-icon contrast, not the selected day/night control palette.
         OrbisVisualTheme {
         Column {
-            Row(Modifier.fillMaxWidth().statusBarsPadding().heightIn(min = 52.dp)
+            Row(Modifier.fillMaxWidth().statusBarsPadding().heightIn(min = 46.dp)
                 .windowInsetsPadding(WindowInsets.displayCutout.only(WindowInsetsSides.Horizontal))
                 .padding(horizontal = 10.dp), verticalAlignment = Alignment.CenterVertically) {
-                Row(Modifier.weight(1f).heightIn(min = 48.dp), verticalAlignment = Alignment.CenterVertically) {
+                Row(Modifier.weight(1f).heightIn(min = 44.dp), verticalAlignment = Alignment.CenterVertically) {
                     Box(Modifier.weight(1f).clickable { openTitleEditor() }, contentAlignment = Alignment.Center) {
                     OrbisHeaderControlSurface(headerOpacity) {
                         Column(Modifier.padding(horizontal = 10.dp, vertical = 5.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(assistant.name.ifBlank { "AI" },
                             fontSize = 15.sp, lineHeight = 21.sp, maxLines = 1,
-                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                             color = OrbisTheme.colors.ink, overflow = TextOverflow.Ellipsis)
                         if (conversation.title.isNotBlank() && conversation.title != assistant.name)
                             Text(conversation.title, fontSize = 10.sp, lineHeight = 14.sp, maxLines = 1,
-                                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                                 color = OrbisTheme.colors.mutedInk, overflow = TextOverflow.Ellipsis)
                         }
                     }
@@ -1072,7 +1069,7 @@ private fun TopBar(
             }
         if (manualVisible) Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             OrbisManualEntry(Modifier.weight(1f))
-            IconButton(onClick = { manualVisible = false }, modifier = Modifier.size(48.dp)) {
+            IconButton(onClick = { manualVisible = false }, modifier = Modifier.size(36.dp)) {
                 Icon(HugeIcons.Cancel01, "关闭说明书提示", modifier = Modifier.size(16.dp))
             }
         }
