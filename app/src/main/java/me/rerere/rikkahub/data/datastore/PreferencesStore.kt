@@ -795,6 +795,9 @@ enum class ChatFontFamily {
     DEFAULT,
     @SerialName("serif")
     SERIF,
+    /** 霞鹜文楷：随 APK 打包的开源楷体（OFL），比系统 Serif 更接近手写。 */
+    @SerialName("wenkai")
+    WENKAI,
     @SerialName("monospace")
     MONOSPACE,
 

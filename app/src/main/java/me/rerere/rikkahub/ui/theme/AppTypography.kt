@@ -37,17 +37,24 @@ private val MixedScriptLine = LineHeightStyle(
 
 private fun familyFor(mode: TypefaceMode): FontFamily = when (mode) {
     // 预览图的正文是「宋体 / Noto Serif CJK」这一类阅读字体。
-    // FontFamily.Cursive 在多数国产 ROM 上并没有中文手写体，会静默退化，看起来像"没改"，
-    // 所以这里显式用 Serif，保证任何设备上正文都是同一套阅读字形。
+    // FontFamily.Cursive 在多数国产 ROM 上并没有中文手写体，会静默退化，看起来像"没改"。
     TypefaceMode.HANDWRITING -> FontFamily.Serif
     TypefaceMode.SONG -> FontFamily.Serif
     TypefaceMode.SYSTEM -> FontFamily.Default
 }
 
 @OptIn(ExperimentalTextApi::class)
-fun appTypography(mode: TypefaceMode = TypefaceMode.HANDWRITING): M3Typography {
+fun appTypography(mode: TypefaceMode = TypefaceMode.HANDWRITING): M3Typography =
+    appTypography(familyFor(mode))
+
+/**
+ * 正文用调用方给的字族（设置美化 → 聊天字体：系统 / 宋体 / 霞鹜文楷 / 等宽），
+ * 只有 label / title 这类 UI 文案固定无衬线，和预览图的层级一致。
+ */
+@OptIn(ExperimentalTextApi::class)
+fun appTypography(bodyFamily: FontFamily): M3Typography {
     val base = M3Typography()
-    val family = familyFor(mode)
+    val family = bodyFamily
 
     fun TextStyle.chat(size: Float, lineHeight: Float, weight: FontWeight = FontWeight.Normal) =
         copy(

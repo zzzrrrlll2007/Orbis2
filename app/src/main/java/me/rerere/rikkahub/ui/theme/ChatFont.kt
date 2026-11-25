@@ -40,6 +40,8 @@ fun rememberChatFontFamily(displaySetting: DisplaySetting): FontFamily {
 fun DisplaySetting.resolveChatFontFamily(context: Context): FontFamily = when (chatFontFamily) {
     ChatFontFamily.DEFAULT -> FontFamily.Default
     ChatFontFamily.SERIF -> FontFamily.Serif
+    // 霞鹜文楷（OFL）随包体一起分发；单个字重即可，Compose 会为粗体做字重合成。
+    ChatFontFamily.WENKAI -> FontFamily(Font(me.rerere.rikkahub.R.font.lxgw_wenkai_regular))
     ChatFontFamily.MONOSPACE -> FontFamily.Monospace
     ChatFontFamily.CUSTOM -> loadCustomFontFamily(context, chatCustomFontPath) ?: FontFamily.Default
 }

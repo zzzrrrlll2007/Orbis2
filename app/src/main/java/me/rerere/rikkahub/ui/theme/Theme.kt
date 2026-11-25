@@ -86,6 +86,8 @@ fun RikkahubTheme(
     val extendColors = if (darkTheme) ExtendDarkColors else ExtendLightColors
     val statusBarAppearanceOverride = remember { mutableStateOf<Boolean?>(null) }
     val lightStatusBars = statusBarAppearanceOverride.value ?: !darkTheme
+    // 设置美化 → 聊天字体：让整个 App 的正文都跟着选（不止聊天气泡）。
+    val bodyFontFamily = rememberChatFontFamily(settings.displaySetting)
 
     // 更新状态栏图标颜色
     val view = LocalView.current
@@ -112,7 +114,7 @@ fun RikkahubTheme(
     ) {
         MaterialExpressiveTheme(
             colorScheme = colorSchemeConverted,
-            typography = appTypography(LocalTypefaceMode.current),
+            typography = appTypography(bodyFontFamily),
             shapes = ZoeShapes,
             content = content,
             motionScheme = MotionScheme.expressive()

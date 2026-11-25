@@ -37,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -480,6 +481,7 @@ private data class ImportedChatFontUI(
 private fun ChatFontFamily.labelUI(): String = when (this) {
     ChatFontFamily.DEFAULT -> stringResource(R.string.setting_display_page_chat_font_family_default)
     ChatFontFamily.SERIF -> stringResource(R.string.setting_display_page_chat_font_family_serif)
+    ChatFontFamily.WENKAI -> "霞鹜文楷"
     ChatFontFamily.MONOSPACE -> stringResource(R.string.setting_display_page_chat_font_family_monospace)
     ChatFontFamily.CUSTOM -> stringResource(R.string.setting_display_page_chat_font_family_custom)
 }
@@ -487,6 +489,7 @@ private fun ChatFontFamily.labelUI(): String = when (this) {
 private fun ChatFontFamily.toFontFamilyUI(customFontFamily: FontFamily): FontFamily = when (this) {
     ChatFontFamily.DEFAULT -> FontFamily.Default
     ChatFontFamily.SERIF -> FontFamily.Serif
+    ChatFontFamily.WENKAI -> FontFamily(Font(me.rerere.rikkahub.R.font.lxgw_wenkai_regular))
     ChatFontFamily.MONOSPACE -> FontFamily.Monospace
     ChatFontFamily.CUSTOM -> customFontFamily
 }

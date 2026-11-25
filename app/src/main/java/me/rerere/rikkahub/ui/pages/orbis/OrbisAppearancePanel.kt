@@ -266,10 +266,10 @@ fun OrbisAppearancePanel(
         }
         AppearanceCard("聊天字体") {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                listOf(ChatFontFamily.DEFAULT, ChatFontFamily.SERIF, ChatFontFamily.MONOSPACE).forEach { family ->
+                listOf(ChatFontFamily.DEFAULT, ChatFontFamily.SERIF, ChatFontFamily.WENKAI, ChatFontFamily.MONOSPACE).forEach { family ->
                     FilterChip(selected = displaySetting.chatFontFamily == family,
                         onClick = { onUpdateDisplay { it.copy(chatFontFamily = family) } },
-                        label = { Text(when (family) { ChatFontFamily.SERIF -> "宋体"; ChatFontFamily.MONOSPACE -> "等宽"; else -> "系统" }) })
+                        label = { Text(when (family) { ChatFontFamily.SERIF -> "宋体"; ChatFontFamily.WENKAI -> "霞鹜文楷"; ChatFontFamily.MONOSPACE -> "等宽"; else -> "系统" }) })
                 }
                 if (displaySetting.chatCustomFontPath.isNotBlank()) {
                     FilterChip(selected = displaySetting.chatFontFamily == ChatFontFamily.CUSTOM,
