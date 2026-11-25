@@ -526,7 +526,11 @@ fun OrbisChatBackdrop(
                     onSuccess = { onImageSettled?.invoke() }, onError = { onImageSettled?.invoke() })
             }
         }
-        if (appearance.floatingStars) {
+        // 预览图的纸面是干净的：纸色 + 三团水彩，没有飘尘。
+        // 飘星只留给「星夜」和季节壁纸，纸页/暖霞不再撒棕色小点。
+        val showFloating = appearance.floatingStars &&
+            (backgroundStyle == OrbisBackgroundStyle.STARS || season != OrbisSeason.NONE)
+        if (showFloating) {
             val phase = if (canAnimate) animatedStarPhase() else 0f
             val starColor = if (deepSeek) OrbisTheme.colors.accent else if (dark || backgroundStyle == OrbisBackgroundStyle.STARS) Color(0xFFFFE5AD) else Color(0xFFA78A60)
             val seasonalFloatColor = if (season == OrbisSeason.NONE) starColor else orbisSeasonColors(season, dark).accent
