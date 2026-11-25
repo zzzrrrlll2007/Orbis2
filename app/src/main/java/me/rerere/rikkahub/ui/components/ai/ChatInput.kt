@@ -210,7 +210,7 @@ fun ChatInput(
     val tts = LocalTTSState.current
     val ttsAvailable by tts.isAvailable.collectAsState()
     val ttsSpeaking by tts.isSpeaking.collectAsState()
-    val containerShape = if (orbis) RoundedCornerShape(23.dp) else MaterialTheme.shapes.largeIncreased
+    val containerShape = if (orbis) RoundedCornerShape(26.dp) else MaterialTheme.shapes.largeIncreased
     val choiceContext = androidx.compose.ui.platform.LocalContext.current
     val choiceHost = remember(choiceContext) { me.rerere.rikkahub.data.orbis.boundary.BoundaryHost.get(choiceContext) }
     val choiceStates by choiceHost.states.collectAsState()
@@ -421,9 +421,10 @@ fun ChatInput(
                             val expanded = !composerExpanded
                             composerExpanded = expanded
                             if (!expanded) { closeManualDictation(); composerPanel = null }
-                        }, modifier = Modifier.size(48.dp).testTag("orbis-composer-expand")) {
+                        }, modifier = Modifier.size(if (orbis) 40.dp else 48.dp).testTag("orbis-composer-expand")) {
                             Icon(if (composerExpanded) HugeIcons.Cancel01 else HugeIcons.Add01,
-                                if (composerExpanded) "收起输入功能" else "展开输入功能", modifier = Modifier.size(19.dp))
+                                if (composerExpanded) "收起输入功能" else "展开输入功能",
+                                modifier = Modifier.size(if (orbis) 17.dp else 19.dp))
                         }
                         TextInputRow(
                             assistant = assistant,
@@ -680,9 +681,9 @@ internal fun SendButton(
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
-            .size(if (BuildConfig.ORBIS_ENABLED) 46.dp else 30.dp)
+            .size(if (BuildConfig.ORBIS_ENABLED) 40.dp else 30.dp)
             .testTag("chat_send_button")
-            .clip(if (BuildConfig.ORBIS_ENABLED) RoundedCornerShape(19.dp) else CircleShape)
+            .clip(if (BuildConfig.ORBIS_ENABLED) RoundedCornerShape(20.dp) else CircleShape)
             .combinedClickable(
                 enabled = showStop || !empty,
                 onClick = onClick,
@@ -692,8 +693,8 @@ internal fun SendButton(
         Surface(
             // Keep the outer 48dp hit target while matching the prototype's
             // compact 40dp send surface. Semantics/cancel behavior stay real.
-            modifier = if (BuildConfig.ORBIS_ENABLED) Modifier.size(38.dp) else Modifier.fillMaxSize(),
-            shape = if (BuildConfig.ORBIS_ENABLED) RoundedCornerShape(17.dp) else CircleShape,
+            modifier = if (BuildConfig.ORBIS_ENABLED) Modifier.size(32.dp) else Modifier.fillMaxSize(),
+            shape = if (BuildConfig.ORBIS_ENABLED) RoundedCornerShape(16.dp) else CircleShape,
             color = containerColor,
             content = {},
         )
@@ -701,7 +702,7 @@ internal fun SendButton(
             imageVector = if (showStop) HugeIcons.Cancel01 else HugeIcons.ArrowUp02,
             contentDescription = stringResource(if (showStop) R.string.stop else R.string.send),
             tint = contentColor,
-            modifier = Modifier.size(18.dp)
+            modifier = Modifier.size(if (BuildConfig.ORBIS_ENABLED) 15.dp else 18.dp)
         )
     }
 }

@@ -362,12 +362,12 @@ fun ChatDrawerContent(
                     }
                 }
                 if (BuildConfig.ORBIS_ENABLED && onClose != null) {
-                    Surface(shape = RoundedCornerShape(13.dp), border = BorderStroke(1.dp, colors.border), color = colors.panel) {
-                        IconButton(onClick = onClose, modifier = Modifier.size(48.dp)
-                            .focusRequester(closeFocusRequester)
-                            .focusProperties { canFocus = true }) {
-                            Text("×", fontSize = 20.sp, modifier = Modifier.semantics { contentDescription = "关闭会话侧栏" })
-                        }
+                    // 预览里关闭就是一枚裸图标，不要再套灰色圆角底。
+                    IconButton(onClick = onClose, modifier = Modifier.size(48.dp)
+                        .focusRequester(closeFocusRequester)
+                        .focusProperties { canFocus = true }) {
+                        Text("×", fontSize = 20.sp, color = colors.mutedInk,
+                            modifier = Modifier.semantics { contentDescription = "关闭会话侧栏" })
                     }
                 }
             }
