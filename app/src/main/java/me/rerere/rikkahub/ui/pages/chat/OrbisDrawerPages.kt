@@ -13,18 +13,23 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import me.rerere.rikkahub.ui.pages.orbis.OrbisTheme
 
-/** The history state belongs to the caller: entering appearance must not recreate its filter/list. */
+/**
+ * The history state belongs to the caller: entering appearance must not recreate its filter/list.
+ * Order follows the approved preview: 新对话 -> 搜索 -> 导航 -> 工具与玩 -> 对话 -> 外观.
+ */
 @Composable
 internal fun OrbisDrawerPages(
     ownerKey: String,
     drawerOpen: Boolean?,
     modifier: Modifier = Modifier,
     newConversation: @Composable () -> Unit,
+    leading: @Composable ColumnScope.() -> Unit = {},
     history: @Composable ColumnScope.() -> Unit,
     appearance: @Composable (onBack: () -> Unit) -> Unit,
 ) {
     var showAppearance by rememberSaveable(ownerKey) { mutableStateOf(false) }
     val scroll = rememberScrollState()
+    val railScroll = rememberScrollState()
     val colors = OrbisTheme.colors
     LaunchedEffect(drawerOpen, ownerKey) { if (drawerOpen == false) showAppearance = false }
     BackHandler(enabled = showAppearance && drawerOpen != false) { showAppearance = false }
@@ -39,14 +44,19 @@ internal fun OrbisDrawerPages(
                 appearance { showAppearance = false }
             }
         } else {
+            newConversation()
+            // 导航 + 工具与玩：整块限高滚动，给下面的会话列表留出空间。
+            Column(
+                Modifier.fillMaxWidth().heightIn(max = 300.dp).verticalScroll(railScroll),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) { leading() }
+            history()
             OutlinedButton(onClick = { showAppearance = true },
-                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("drawer-appearance-open"),
+                modifier = Modifier.fillMaxWidth().heightIn(min = 44.dp).testTag("drawer-appearance-open"),
                 shape = RoundedCornerShape(13.dp),
                 colors = ButtonDefaults.outlinedButtonColors(containerColor = colors.panel, contentColor = colors.ink)) {
-                Text("自定义美化")
+                Text("自定义美化 · 外观")
             }
-            newConversation()
-            history()
         }
     }
 }

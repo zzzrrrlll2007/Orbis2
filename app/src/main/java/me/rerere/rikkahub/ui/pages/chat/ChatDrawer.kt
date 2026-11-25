@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -72,6 +73,7 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -120,7 +122,9 @@ import me.rerere.rikkahub.ui.hooks.EditStateContent
 import me.rerere.rikkahub.ui.hooks.readBooleanPreference
 import me.rerere.rikkahub.ui.hooks.rememberSharedPreferenceBoolean
 import me.rerere.rikkahub.ui.hooks.useEditState
+import me.rerere.rikkahub.ui.pages.orbis.LocalOpenOrbisHome
 import me.rerere.rikkahub.ui.pages.orbis.OrbisTheme
+import me.rerere.rikkahub.ui.pages.orbis.orbisToolEntries
 import me.rerere.rikkahub.ui.pages.orbis.OrbisAppearancePanel
 import me.rerere.rikkahub.ui.pages.orbis.OrbisVisualTheme
 import me.rerere.rikkahub.utils.navigateToChatPage
@@ -360,8 +364,6 @@ fun ChatDrawerContent(
             }
 
             if (BuildConfig.ORBIS_ENABLED) {
-                OrbisDrawerNavList(navController = navController, onClose = onClose)
-                HorizontalDivider(color = colors.border)
                 OrbisDrawerPages(
                     ownerKey = current.assistantId.toString(), drawerOpen = drawerOpen,
                     modifier = Modifier.fillMaxWidth().weight(1f),
@@ -404,6 +406,14 @@ fun ChatDrawerContent(
                 )
                     if (!manualVisible) TextButton(onClick = { manualVisible = true; onClose?.invoke() },
                         modifier = Modifier.fillMaxWidth()) { Text("重新显示聊天说明书提示", fontSize = 11.sp) }
+                    },
+                    leading = {
+                        OrbisDrawerRail(
+                            navController = navController,
+                            assistantId = current.assistantId.toString(),
+                            conversationId = current.id,
+                            onClose = onClose,
+                        )
                     },
                     history = {
                 ConversationList(
@@ -1184,40 +1194,96 @@ private fun AssistantItem(
         }
     }
 }
-/** Zoe：抽屉顶部的「导航」列（左对齐、细线分隔），入口与原北斗导航一致。 */
+/** Zoe：抽屉「导航 8 项」+ 折叠的「工具与玩 · 22」，顺序与预览一致，入口沿用原北斗导航。 */
 @Composable
-private fun OrbisDrawerNavList(
+private fun OrbisDrawerRail(
     navController: Navigator,
+    assistantId: String,
+    conversationId: Uuid,
     onClose: (() -> Unit)?,
 ) {
     val colors = OrbisTheme.colors
-    val entries = listOf(
-        Triple("群聊", "AI 群聊 · 可选 TechHub", Screen.OrbisGroups),
-        Triple("记忆星图", "本机与 ST · 只读元信息", Screen.OrbisMemoryAtlas),
-        Triple("后台与权限", "哨兵与手机设备能力", Screen.OrbisPhone),
-        Triple("系统设置", "模型、MCP、声音与数据", Screen.Setting),
+    val openHome = LocalOpenOrbisHome.current
+    var toolsOpen by remember { mutableStateOf(false) }
+    val rows: List<Pair<Pair<String, String>, () -> Unit>> = listOf(
+        ("聊天" to "返回当前会话") to {
+            onClose?.invoke()
+            navigateToChatPage(navController, conversationId)
+        },
+        ("Orbis" to "本地后花园 / 自建原站") to {
+            onClose?.invoke(); openHome()
+        },
+        ("群聊" to "AI 群聊 · 可选 TechHub") to {
+            onClose?.invoke(); navController.navigate(Screen.OrbisGroups) { launchSingleTop = true }
+        },
+        ("记忆星图" to "本机与 ST · 只读元信息") to {
+            onClose?.invoke(); navController.navigate(Screen.OrbisMemoryAtlas) { launchSingleTop = true }
+        },
+        ("工具娱乐" to "工作区、文件与本地工具") to {
+            onClose?.invoke(); navController.navigate(Screen.OrbisTools) { launchSingleTop = true }
+        },
+        ("后台与权限" to "哨兵与手机设备能力") to {
+            onClose?.invoke(); navController.navigate(Screen.OrbisPhone) { launchSingleTop = true }
+        },
+        ("系统设置" to "模型、MCP、声音与数据") to {
+            onClose?.invoke(); navController.navigate(Screen.Setting) { launchSingleTop = true }
+        },
+        ("咨询室" to "偷听角 · 独立人类授权") to {
+            onClose?.invoke(); navController.navigate(Screen.OrbisConsultation) { launchSingleTop = true }
+        },
     )
-    Column(Modifier.fillMaxWidth().padding(top = 6.dp, bottom = 2.dp)) {
-        Text(
-            "导航",
-            fontSize = 10.sp,
-            letterSpacing = 1.5.sp,
-            color = colors.mutedInk.copy(alpha = .72f),
-            modifier = Modifier.padding(start = 8.dp, top = 2.dp, bottom = 4.dp),
+    Column(Modifier.fillMaxWidth()) {
+        OrbisRailLabel("导航")
+        rows.forEach { (label, action) -> OrbisRailRow(label.first, label.second, action) }
+        Spacer(Modifier.height(6.dp))
+        OrbisRailRow(
+            title = "工具与玩 · ${orbisToolEntries.size}",
+            subtitle = if (toolsOpen) "收起工具列表" else "工作区 · 秘密基地 · 共同空间 · 宠物区 …",
+            onClick = { toolsOpen = !toolsOpen },
         )
-        entries.forEach { (title, subtitle, screen) ->
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable {
+        if (toolsOpen) {
+            orbisToolEntries.forEach { entry ->
+                OrbisRailRow(
+                    title = entry.title,
+                    subtitle = entry.subtitle,
+                    indent = 12.dp,
+                    onClick = {
                         onClose?.invoke()
-                        navController.navigate(screen)
-                    }
-                    .padding(horizontal = 8.dp, vertical = 7.dp),
-            ) {
-                Text(title, fontSize = 13.5.sp, color = colors.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                Text(subtitle, fontSize = 10.sp, color = colors.mutedInk, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        navController.navigate(Screen.OrbisTools) { launchSingleTop = true }
+                    },
+                )
             }
         }
+    }
+}
+
+@Composable
+private fun OrbisRailLabel(text: String) {
+    Text(
+        text,
+        fontSize = 10.sp,
+        letterSpacing = 1.5.sp,
+        color = OrbisTheme.colors.mutedInk.copy(alpha = .72f),
+        modifier = Modifier.padding(start = 8.dp, top = 4.dp, bottom = 2.dp),
+    )
+}
+
+@Composable
+private fun OrbisRailRow(
+    title: String,
+    subtitle: String,
+    indent: Dp = 0.dp,
+    onClick: () -> Unit,
+) {
+    val colors = OrbisTheme.colors
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .clickable(role = Role.Button, onClick = onClick)
+            .padding(start = 8.dp + indent, end = 8.dp, top = 6.dp, bottom = 6.dp),
+    ) {
+        Text(title, fontSize = 13.5.sp, color = colors.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(subtitle, fontSize = 10.sp, color = colors.mutedInk, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }
