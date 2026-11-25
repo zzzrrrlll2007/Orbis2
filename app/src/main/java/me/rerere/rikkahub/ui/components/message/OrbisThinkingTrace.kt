@@ -11,6 +11,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -88,6 +92,34 @@ fun OrbisThinkingTrace(
         }
         Text(text = "›", fontSize = 12.sp, color = colors.mutedInk.copy(alpha = .6f))
     }
+}
+
+/**
+ * 对话流里的「一行思考入口」+ 它自己的玻璃抽屉。
+ *
+ * 状态留在这个 composable 里，调用点（消息分块循环）不需要把状态穿透上去。
+ */
+@Composable
+fun OrbisThinkingTraceSection(
+    steps: List<ThinkingStepUi>,
+    durationSeconds: Long?,
+    modelName: String?,
+    modifier: Modifier = Modifier,
+) {
+    if (steps.isEmpty()) return
+    var open by remember { mutableStateOf(false) }
+    OrbisThinkingTrace(
+        durationSeconds = durationSeconds,
+        stepCount = steps.size,
+        onClick = { open = true },
+        modifier = modifier,
+    )
+    if (open) OrbisThinkingSheet(
+        visible = true,
+        steps = steps,
+        modelName = modelName,
+        onDismiss = { open = false },
+    )
 }
 
 /** Four-point star, stroked hairline. Kept local so this row has no icon-pack dependency. */
