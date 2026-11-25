@@ -2,13 +2,13 @@ package me.rerere.rikkahub.ui.pages.setting
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -19,6 +19,9 @@ import me.rerere.rikkahub.BuildConfig
 import me.rerere.rikkahub.ui.pages.orbis.OrbisPageSurface
 import me.rerere.rikkahub.ui.pages.orbis.OrbisTheme
 import me.rerere.rikkahub.ui.pages.orbis.OrbisVisualTheme
+import me.rerere.rikkahub.ui.theme.GlassTints
+import me.rerere.rikkahub.ui.theme.LocalDarkMode
+import me.rerere.rikkahub.ui.theme.glass.glassSurface
 
 /** Presentation-only wrapper: existing editors, state and save actions remain untouched. */
 @Composable
@@ -51,7 +54,13 @@ internal fun OrbisSettingsScaffold(
     if (BuildConfig.ORBIS_ENABLED) OrbisVisualTheme { OrbisPageSurface { body() } } else body()
 }
 
-/** Compact Orbis header, including action slots from the original editor. */
+/**
+ * Compact Orbis header.
+ *
+ * Zoe pass: the header used to be an edge-to-edge strip with a 1dp bottom divider. It is now a
+ * floating glass pill that keeps the same slots (title / subtitle / navigation / actions) and the
+ * same measured height, so no settings page has to move anything.
+ */
 @Suppress("UNUSED_PARAMETER")
 @Composable
 internal fun OrbisSettingsTopBar(
@@ -80,20 +89,45 @@ internal fun OrbisSettingsTopBar(
         }
     }
     val palette = OrbisTheme.colors
-    Column(modifier.fillMaxWidth().background(palette.page.copy(alpha = .94f)).statusBarsPadding()
-        .drawBehind {
-            val stroke = 1.dp.toPx()
-            drawLine(palette.border.copy(alpha = .65f), Offset(0f, size.height - stroke / 2),
-                Offset(size.width, size.height - stroke / 2), strokeWidth = stroke)
-        }) {
-        Row(Modifier.fillMaxWidth().heightIn(min = 76.dp).padding(horizontal = 10.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+    val light = !LocalDarkMode.current
+    val shape = RoundedCornerShape(24.dp)
+    Column(modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 14.dp, vertical = 6.dp)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(shape)
+                .glassSurface(
+                    shape = shape,
+                    fillTop = GlassTints.top(light),
+                    fillBottom = GlassTints.bottom(light),
+                    borderColor = GlassTints.border(light),
+                    highlightColor = GlassTints.highlight(light),
+                    elevation = 8.dp,
+                )
+                .heightIn(min = 62.dp)
+                .padding(horizontal = 8.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
             navigationIcon()
-            Column(Modifier.weight(1f).semantics { heading() }, verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                ProvideTextStyle(MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp,
-                    lineHeight = 24.sp, fontWeight = FontWeight.SemiBold, color = palette.ink)) { title() }
-                if (subtitle != null) ProvideTextStyle(MaterialTheme.typography.bodySmall.copy(
-                    fontSize = 11.sp, lineHeight = 16.sp, color = palette.mutedInk)) { subtitle() }
+            Column(Modifier.weight(1f).semantics { heading() }, verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                ProvideTextStyle(
+                    MaterialTheme.typography.titleMedium.copy(
+                        fontSize = 17.sp,
+                        lineHeight = 22.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = palette.ink,
+                    ),
+                ) { title() }
+                if (subtitle != null) {
+                    ProvideTextStyle(
+                        MaterialTheme.typography.bodySmall.copy(
+                            fontSize = 10.5.sp,
+                            lineHeight = 15.sp,
+                            color = palette.mutedInk,
+                        ),
+                    ) { subtitle() }
+                }
             }
             actions()
         }
