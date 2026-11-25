@@ -105,6 +105,7 @@ import me.rerere.rikkahub.ui.context.LocalToaster
 import me.rerere.rikkahub.ui.hooks.rememberColorMode
 import me.rerere.rikkahub.ui.theme.ColorMode
 import me.rerere.rikkahub.ui.theme.LocalDarkMode
+import me.rerere.rikkahub.ui.theme.glass.watercolorWash
 import me.rerere.rikkahub.ui.theme.rememberChatFontFamily
 import org.koin.compose.koinInject
 import java.io.File
@@ -508,7 +509,12 @@ fun OrbisChatBackdrop(
     val season = LocalOrbisSeason.current
     Box(modifier) {
         if (drawBackground) {
-            Box(Modifier.fillMaxSize().background(Brush.verticalGradient(gradient)))
+            if (backgroundStyle == OrbisBackgroundStyle.PAPER && !deepSeek) {
+                // 预览图的「纸 + 水彩」底；BLUSH / STARS 仍走原渐变。
+                Box(Modifier.fillMaxSize().watercolorWash(light = !dark))
+            } else {
+                Box(Modifier.fillMaxSize().background(Brush.verticalGradient(gradient)))
+            }
             if (usesSeasonWallpaper(season, appearance)) OrbisSeasonWallpaper(season, dark, Modifier.fillMaxSize())
             if (appearance.backgroundEnabled && !appearance.backgroundImage.isNullOrBlank()) {
                 // Bounded decode; the preset remains visible if a missing/corrupt file cannot load.
