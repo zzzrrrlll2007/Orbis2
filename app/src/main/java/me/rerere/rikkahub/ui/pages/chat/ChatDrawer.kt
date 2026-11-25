@@ -72,6 +72,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -252,18 +253,19 @@ fun ChatDrawerContent(
         ) {
             // Fixed identity header; appearance has its own drawer page below it.
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().padding(start = 8.dp, top = 10.dp, bottom = 2.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                horizontalArrangement = Arrangement.spacedBy(2.dp),
             ) {
                 if (BuildConfig.ORBIS_ENABLED) {
-                    UIAvatar(assistantName ?: "当前 AI", selectedAssistant?.avatar ?: Avatar.Emoji("✦"), Modifier.size(39.dp))
-                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                        Text("${assistantName ?: "当前 AI"}的会话", fontSize = 13.sp, lineHeight = 18.sp,
-                            fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        Text("同一个${assistantName ?: "AI"} · 不拆成多个助手", fontSize = 9.sp, lineHeight = 13.sp,
-                            color = colors.mutedInk)
-                    }
+                    Text(
+                        "Orbis",
+                        modifier = Modifier.weight(1f),
+                        fontSize = 22.sp,
+                        letterSpacing = .5.sp,
+                        color = colors.ink,
+                        maxLines = 1,
+                    )
                 } else {
                 UIAvatar(
                     name = settings.displaySetting.userNickname.ifBlank { stringResource(R.string.user_default_name) },
@@ -378,9 +380,18 @@ fun ChatDrawerContent(
                                     } catch (_: Exception) { toaster.show("新会话未创建，请重试。", type = ToastType.Error)
                                     } finally { creating = false }
                                 }
-                            } }, enabled = selectedAssistant != null && !creating, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
-                                shape = RoundedCornerShape(13.dp), contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)) {
-                                Text(if (creating) "正在创建…" else "+  新建同一${assistantName ?: "AI"}会话", fontSize = 11.sp)
+                            } }, enabled = selectedAssistant != null && !creating,
+                                modifier = Modifier.fillMaxWidth().heightIn(min = 44.dp).padding(top = 6.dp),
+                                shape = RoundedCornerShape(14.dp),
+                                contentPadding = PaddingValues(horizontal = 13.dp, vertical = 10.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = colors.panel, contentColor = colors.ink),
+                                border = BorderStroke(1.dp, colors.border)) {
+                                Text(
+                                    if (creating) "正在创建…" else "+   新对话",
+                                    modifier = Modifier.fillMaxWidth(),
+                                    fontSize = 13.5.sp,
+                                    textAlign = TextAlign.Start,
+                                )
                             }
                     },
                     appearance = { backToHistory ->
@@ -410,10 +421,14 @@ fun ChatDrawerContent(
                     leading = {
                         OrbisDrawerRail(
                             navController = navController,
-                            assistantId = current.assistantId.toString(),
                             conversationId = current.id,
                             onClose = onClose,
                         )
+                    },
+                    foot = {
+                        OrbisDrawerFoot(
+                            name = settings.displaySetting.userNickname.ifBlank { "Zoe" },
+                        ) { nicknameEditState.open(settings.displaySetting.userNickname) }
                     },
                     history = {
                 ConversationList(
@@ -1195,66 +1210,94 @@ private fun AssistantItem(
     }
 }
 /** Zoe：抽屉「导航 8 项」+ 折叠的「工具与玩 · 22」，顺序与预览一致，入口沿用原北斗导航。 */
+private class OrbisRailEntry(
+    val icon: ImageVector,
+    val title: String,
+    val subtitle: String,
+    val action: () -> Unit,
+)
+
 @Composable
 private fun OrbisDrawerRail(
     navController: Navigator,
-    assistantId: String,
     conversationId: Uuid,
     onClose: (() -> Unit)?,
 ) {
-    val colors = OrbisTheme.colors
     val openHome = LocalOpenOrbisHome.current
     var toolsOpen by remember { mutableStateOf(false) }
-    val rows: List<Pair<Pair<String, String>, () -> Unit>> = listOf(
-        ("聊天" to "返回当前会话") to {
-            onClose?.invoke()
-            navigateToChatPage(navController, conversationId)
+    val rows = listOf(
+        OrbisRailEntry(HugeIcons.Message01, "聊天", "返回当前会话") {
+            onClose?.invoke(); navigateToChatPage(navController, conversationId)
         },
-        ("Orbis" to "本地后花园 / 自建原站") to {
+        OrbisRailEntry(HugeIcons.Home01, "Orbis", "本地后花园 / 自建原站") {
             onClose?.invoke(); openHome()
         },
-        ("群聊" to "AI 群聊 · 可选 TechHub") to {
+        OrbisRailEntry(HugeIcons.UserGroup, "群聊", "AI 群聊 · 可选 TechHub") {
             onClose?.invoke(); navController.navigate(Screen.OrbisGroups) { launchSingleTop = true }
         },
-        ("记忆星图" to "本机与 ST · 只读元信息") to {
+        OrbisRailEntry(HugeIcons.Sparkles, "记忆星图", "本机与 ST · 只读元信息") {
             onClose?.invoke(); navController.navigate(Screen.OrbisMemoryAtlas) { launchSingleTop = true }
         },
-        ("工具娱乐" to "工作区、文件与本地工具") to {
+        OrbisRailEntry(HugeIcons.Command, "工具娱乐", "工作区、文件与本地工具") {
             onClose?.invoke(); navController.navigate(Screen.OrbisTools) { launchSingleTop = true }
         },
-        ("后台与权限" to "哨兵与手机设备能力") to {
+        OrbisRailEntry(HugeIcons.SecurityCheck, "后台与权限", "哨兵与手机设备能力") {
             onClose?.invoke(); navController.navigate(Screen.OrbisPhone) { launchSingleTop = true }
         },
-        ("系统设置" to "模型、MCP、声音与数据") to {
+        OrbisRailEntry(HugeIcons.Settings01, "系统设置", "模型、MCP、声音与数据") {
             onClose?.invoke(); navController.navigate(Screen.Setting) { launchSingleTop = true }
         },
-        ("咨询室" to "偷听角 · 独立人类授权") to {
+        OrbisRailEntry(HugeIcons.Message01, "咨询室", "偷听角 · 独立人类授权") {
             onClose?.invoke(); navController.navigate(Screen.OrbisConsultation) { launchSingleTop = true }
         },
     )
     Column(Modifier.fillMaxWidth()) {
+        OrbisRailSearch()
         OrbisRailLabel("导航")
-        rows.forEach { (label, action) -> OrbisRailRow(label.first, label.second, action) }
-        Spacer(Modifier.height(6.dp))
+        rows.forEach { entry -> OrbisRailRow(entry.icon, entry.title, entry.subtitle, onClick = entry.action) }
+        OrbisRailSep()
+        OrbisRailLabel("工具与玩 · ${orbisToolEntries.size}")
         OrbisRailRow(
-            title = "工具与玩 · ${orbisToolEntries.size}",
-            subtitle = if (toolsOpen) "收起工具列表" else "工作区 · 秘密基地 · 共同空间 · 宠物区 …",
-            onClick = { toolsOpen = !toolsOpen },
-        )
+            HugeIcons.Command,
+            "展开全部 ${orbisToolEntries.size} 项",
+            if (toolsOpen) "收起工具列表" else "工作区 · 秘密基地 · 共同空间 · 宠物区 …",
+        ) { toolsOpen = !toolsOpen }
         if (toolsOpen) {
             orbisToolEntries.forEach { entry ->
-                OrbisRailRow(
-                    title = entry.title,
-                    subtitle = entry.subtitle,
-                    indent = 12.dp,
-                    onClick = {
-                        onClose?.invoke()
-                        navController.navigate(Screen.OrbisTools) { launchSingleTop = true }
-                    },
-                )
+                OrbisRailRow(null, entry.title, entry.subtitle, indent = 18.dp) {
+                    onClose?.invoke()
+                    navController.navigate(Screen.OrbisTools) { launchSingleTop = true }
+                }
             }
         }
     }
+}
+
+/** 玻璃搜索入口：视觉先对齐预览，点击暂时不弹出搜索。 */
+@Composable
+private fun OrbisRailSearch() {
+    val colors = OrbisTheme.colors
+    Row(
+        modifier = Modifier.fillMaxWidth()
+            .padding(top = 8.dp, bottom = 8.dp)
+            .clip(RoundedCornerShape(13.dp))
+            .background(colors.panel.copy(alpha = .58f))
+            .padding(horizontal = 12.dp, vertical = 9.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(9.dp),
+    ) {
+        Text("⌕", fontSize = 13.sp, color = colors.mutedInk)
+        Text("搜索对话与内容", fontSize = 12.sp, color = colors.mutedInk, maxLines = 1,
+            overflow = TextOverflow.Ellipsis)
+    }
+}
+
+@Composable
+private fun OrbisRailSep() {
+    HorizontalDivider(
+        modifier = Modifier.padding(top = 12.dp, bottom = 4.dp),
+        color = OrbisTheme.colors.border.copy(alpha = .55f),
+    )
 }
 
 @Composable
@@ -1262,28 +1305,62 @@ private fun OrbisRailLabel(text: String) {
     Text(
         text,
         fontSize = 10.sp,
-        letterSpacing = 1.5.sp,
+        letterSpacing = 1.8.sp,
         color = OrbisTheme.colors.mutedInk.copy(alpha = .72f),
-        modifier = Modifier.padding(start = 8.dp, top = 4.dp, bottom = 2.dp),
+        modifier = Modifier.padding(start = 10.dp, top = 2.dp, bottom = 6.dp),
     )
 }
 
 @Composable
 private fun OrbisRailRow(
+    icon: ImageVector?,
     title: String,
     subtitle: String,
     indent: Dp = 0.dp,
     onClick: () -> Unit,
 ) {
     val colors = OrbisTheme.colors
-    Column(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
+            .clip(RoundedCornerShape(11.dp))
             .clickable(role = Role.Button, onClick = onClick)
-            .padding(start = 8.dp + indent, end = 8.dp, top = 6.dp, bottom = 6.dp),
+            .padding(start = 10.dp + indent, end = 10.dp, top = 6.dp, bottom = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(11.dp),
     ) {
-        Text(title, fontSize = 13.5.sp, color = colors.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
-        Text(subtitle, fontSize = 10.sp, color = colors.mutedInk, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        if (icon != null) {
+            Box(Modifier.size(18.dp), contentAlignment = Alignment.Center) {
+                Icon(icon, contentDescription = null, modifier = Modifier.size(17.dp), tint = colors.mutedInk)
+            }
+        }
+        Column(Modifier.weight(1f)) {
+            Text(title, fontSize = 13.5.sp, color = colors.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(subtitle, fontSize = 10.sp, color = colors.mutedInk, maxLines = 1,
+                overflow = TextOverflow.Ellipsis)
+        }
+    }
+}
+
+/** 预览底部身份行：头像 + 昵称 + 社区状态 + 进入箭头。 */
+@Composable
+private fun OrbisDrawerFoot(name: String, onClick: () -> Unit) {
+    val colors = OrbisTheme.colors
+    Row(
+        modifier = Modifier.fillMaxWidth()
+            .clickable(role = Role.Button, onClick = onClick)
+            .padding(start = 6.dp, end = 6.dp, top = 10.dp, bottom = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(9.dp),
+    ) {
+        Box(
+            Modifier.size(26.dp).clip(CircleShape).background(colors.panel.copy(alpha = .8f)),
+            contentAlignment = Alignment.Center,
+        ) { Text(name.take(1), fontSize = 11.sp, color = colors.mutedInk) }
+        Column(Modifier.weight(1f)) {
+            Text(name, fontSize = 12.sp, color = colors.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text("未登录社区", fontSize = 9.5.sp, color = colors.mutedInk, maxLines = 1)
+        }
+        Text("›", fontSize = 14.sp, color = colors.mutedInk.copy(alpha = .7f))
     }
 }

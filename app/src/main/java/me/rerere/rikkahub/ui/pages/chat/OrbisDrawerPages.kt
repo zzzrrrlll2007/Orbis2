@@ -1,6 +1,7 @@
 package me.rerere.rikkahub.ui.pages.chat
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -10,7 +11,9 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import me.rerere.rikkahub.ui.pages.orbis.OrbisTheme
 
 /**
@@ -25,6 +28,7 @@ internal fun OrbisDrawerPages(
     newConversation: @Composable () -> Unit,
     leading: @Composable ColumnScope.() -> Unit = {},
     history: @Composable ColumnScope.() -> Unit,
+    foot: @Composable ColumnScope.() -> Unit = {},
     appearance: @Composable (onBack: () -> Unit) -> Unit,
 ) {
     var showAppearance by rememberSaveable(ownerKey) { mutableStateOf(false) }
@@ -51,12 +55,17 @@ internal fun OrbisDrawerPages(
                 verticalArrangement = Arrangement.spacedBy(4.dp),
             ) { leading() }
             history()
-            OutlinedButton(onClick = { showAppearance = true },
-                modifier = Modifier.fillMaxWidth().heightIn(min = 44.dp).testTag("drawer-appearance-open"),
-                shape = RoundedCornerShape(13.dp),
-                colors = ButtonDefaults.outlinedButtonColors(containerColor = colors.panel, contentColor = colors.ink)) {
-                Text("自定义美化 · 外观")
+            Column(
+                Modifier.fillMaxWidth()
+                    .clickable(role = Role.Button) { showAppearance = true }
+                    .padding(horizontal = 8.dp, vertical = 6.dp)
+                    .testTag("drawer-appearance-open"),
+            ) {
+                Text("自定义美化", fontSize = 13.5.sp, color = colors.ink, maxLines = 1)
+                Text("主题工作室 · 交给 AI 装扮", fontSize = 10.sp, color = colors.mutedInk, maxLines = 1)
             }
+            HorizontalDivider(color = colors.border)
+            foot()
         }
     }
 }
