@@ -56,6 +56,11 @@ val LocalReturnToOrbisChat = staticCompositionLocalOf<() -> Unit> { {} }
 internal fun OrbisOfflineHomeOverlay(visible: Boolean, homeRevision: Int, onOpenChat: () -> Unit) {
     var renderFailed by remember { mutableStateOf(false) }
     var reload by remember { mutableIntStateOf(0) }
+    // 内置 HTML 页自己不知道白天/夜间：把主题写到 <html data-theme>，zoe-shell.css 只读它。
+    val darkTheme = LocalDarkMode.current
+    val themeScript by rememberUpdatedState(
+        "document.documentElement.dataset.theme='" + (if (darkTheme) "dark" else "light") + "';"
+    )
     val currentOpenChat by rememberUpdatedState(onOpenChat)
     var lastHomeRevision by remember { mutableIntStateOf(homeRevision) }
     var currentView by remember { mutableStateOf<WebView?>(null) }
@@ -112,6 +117,10 @@ internal fun OrbisOfflineHomeOverlay(visible: Boolean, homeRevision: Int, onOpen
                                 renderFailed = true // Removes this WebView; native chat is retained.
                                 return true
                             }
+
+                            override fun onPageFinished(view: WebView, url: String) {
+                                view.evaluateJavascript(themeScript, null)
+                            }
                         }
                         loadUrl(OrbisLocalPolicy.HOME)
                     }
@@ -125,6 +134,7 @@ internal fun OrbisOfflineHomeOverlay(visible: Boolean, homeRevision: Int, onOpen
                     view.importantForAccessibility = if (visible) View.IMPORTANT_FOR_ACCESSIBILITY_AUTO
                         else View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
                     if (visible) view.onResume() else view.onPause()
+                    view.evaluateJavascript(themeScript, null)
                     if (homeRevision != lastHomeRevision) {
                         lastHomeRevision = homeRevision
                         view.evaluateJavascript("location.hash = '#calendar';", null)

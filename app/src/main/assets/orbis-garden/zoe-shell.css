@@ -1,0 +1,113 @@
+/*
+ * Zoe 水彩玻璃壳 —— 内置 HTML 页的覆盖层（在 original.css / local.css 之后加载）。
+ *
+ * 只改观感，不动结构：顶栏、按钮、卡片统一成和 App 原生页同一套纸白玻璃，
+ * 字号/间距沿用页面原有规则，避免把书页、日历的排版挤坏。
+ * 主题由 App 在页面加载后写 <html data-theme="light|dark">，本文件只读。
+ */
+
+:root {
+  --z-ink: #2F3944;
+  --z-muted: #5E6A77;
+  --z-border: rgba(255, 255, 255, .85);
+  --z-glass-top: rgba(255, 255, 255, .95);
+  --z-glass-bottom: rgba(248, 251, 248, .92);
+  --z-shadow: 0 8px 22px rgba(70, 79, 92, .10);
+  --z-highlight: inset 0 1px 0 rgba(255, 255, 255, .9);
+}
+
+html[data-theme="dark"] {
+  --z-ink: #E9E4DB;
+  --z-muted: #A6AFB9;
+  --z-border: rgba(255, 255, 255, .16);
+  --z-glass-top: rgba(90, 106, 118, .95);
+  --z-glass-bottom: rgba(43, 51, 60, .94);
+  --z-shadow: 0 10px 24px rgba(0, 0, 0, .42);
+  --z-highlight: inset 0 1px 0 rgba(255, 255, 255, .12);
+}
+
+/* ---- 顶栏：后花园首页的日历头、内页的阅读头，统一成一条玻璃药丸 ---- */
+.calendar__header,
+.local-shell .reading-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  margin: 8px 10px 14px;
+  padding: 10px 14px;
+  border-radius: 22px;
+  color: var(--z-ink);
+  background: linear-gradient(180deg, var(--z-glass-top), var(--z-glass-bottom));
+  border: 1px solid var(--z-border);
+  box-shadow: var(--z-shadow), var(--z-highlight);
+  -webkit-backdrop-filter: blur(16px) saturate(130%);
+  backdrop-filter: blur(16px) saturate(130%);
+}
+
+.calendar__header .calendar__month,
+.local-shell .reading-header h1,
+.local-shell h1 {
+  color: var(--z-ink);
+  font-weight: 600;
+  letter-spacing: .01em;
+}
+
+.calendar__nav .icon-btn,
+.reading-header .back-btn,
+.reading-head-btn {
+  color: var(--z-ink);
+  border-radius: 999px;
+}
+
+/* ---- 按钮：胶囊 + 同款玻璃，尺寸沿用原规则 ---- */
+.local-actions button,
+.local-button,
+.quick-card button,
+.song-card button {
+  border-radius: 999px;
+  border: 1px solid var(--z-border);
+  color: var(--z-ink);
+  background: linear-gradient(180deg, var(--z-glass-top), var(--z-glass-bottom));
+  box-shadow: 0 4px 12px rgba(70, 79, 92, .08), var(--z-highlight);
+}
+
+/* ---- 卡片：书页、快捷卡、歌卡，收成同一张纸白玻璃 ---- */
+.local-section,
+.local-date-page .quick-card,
+.local-date-page .song-card,
+.local-date-page .anchor-card {
+  border-radius: 22px;
+  border: 1px solid var(--z-border);
+  color: var(--z-ink);
+  background: linear-gradient(180deg, var(--z-glass-top), var(--z-glass-bottom));
+  box-shadow: var(--z-shadow), var(--z-highlight);
+}
+
+.local-section h2,
+.local-section h3 {
+  color: var(--z-ink);
+}
+
+.local-note,
+.local-empty,
+.local-entry small {
+  color: var(--z-muted);
+}
+
+.local-entry {
+  color: var(--z-ink);
+  border-bottom-color: var(--z-border);
+}
+
+/* 夜间：只压暗页面本身，保留原本的星空/渐晕图 */
+html[data-theme="dark"] body {
+  background-color: #151A1F;
+  color: var(--z-ink);
+}
+
+html[data-theme="dark"] .local-shell input,
+html[data-theme="dark"] .local-shell textarea,
+html[data-theme="dark"] .local-shell select {
+  background: rgba(43, 51, 60, .9);
+  border-color: var(--z-border);
+  color: var(--z-ink);
+}
