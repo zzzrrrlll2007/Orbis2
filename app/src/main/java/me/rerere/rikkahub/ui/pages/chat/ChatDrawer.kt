@@ -242,7 +242,7 @@ fun ChatDrawerContent(
     ) {
         Column(
             modifier = Modifier.fillMaxSize()
-                .background(Brush.verticalGradient(listOf(colors.panel.copy(alpha = .94f), colors.page.copy(alpha = .98f))))
+                .background(Brush.verticalGradient(listOf(colors.panel.copy(alpha = .74f), colors.page.copy(alpha = .86f))))
                 .padding(horizontal = 12.dp, vertical = if (BuildConfig.ORBIS_ENABLED || compactLayout) 6.dp else 12.dp),
             verticalArrangement = Arrangement.spacedBy(if (BuildConfig.ORBIS_ENABLED || compactLayout) 6.dp else 10.dp),
         ) {
