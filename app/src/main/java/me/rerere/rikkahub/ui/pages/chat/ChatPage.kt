@@ -1024,14 +1024,17 @@ private fun TopBar(
                 .windowInsetsPadding(WindowInsets.displayCutout.only(WindowInsetsSides.Horizontal))
                 .padding(horizontal = 10.dp), verticalAlignment = Alignment.CenterVertically) {
                 Row(Modifier.weight(1f).heightIn(min = 48.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Box(Modifier.weight(1f, fill = false).clickable { openTitleEditor() }) {
+                    Box(Modifier.weight(1f).clickable { openTitleEditor() }, contentAlignment = Alignment.Center) {
                     OrbisHeaderControlSurface(headerOpacity) {
-                        Column(Modifier.padding(horizontal = 10.dp, vertical = 5.dp)) {
+                        Column(Modifier.padding(horizontal = 10.dp, vertical = 5.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(assistant.name.ifBlank { "AI" },
-                            fontSize = 14.sp, lineHeight = 20.sp, maxLines = 1,
+                            fontSize = 15.sp, lineHeight = 21.sp, maxLines = 1,
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                             color = OrbisTheme.colors.ink, overflow = TextOverflow.Ellipsis)
                         if (conversation.title.isNotBlank() && conversation.title != assistant.name)
                             Text(conversation.title, fontSize = 10.sp, lineHeight = 14.sp, maxLines = 1,
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                                 color = OrbisTheme.colors.mutedInk, overflow = TextOverflow.Ellipsis)
                         }
                     }
