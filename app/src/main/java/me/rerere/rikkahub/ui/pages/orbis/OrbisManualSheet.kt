@@ -55,6 +55,8 @@ import me.rerere.rikkahub.BuildConfig
 import me.rerere.rikkahub.data.ai.tools.orbisPublicStaticManual
 import me.rerere.rikkahub.data.ai.tools.orbisManualChapters
 import me.rerere.rikkahub.data.ai.tools.orbisManualChapterMatches
+import me.rerere.rikkahub.ui.theme.GlassTints
+import me.rerere.rikkahub.ui.theme.LocalDarkMode
 
 /** Static help only: no ViewModel, settings, registry construction or tool execution. */
 @Composable
@@ -68,8 +70,13 @@ fun OrbisManualEntry(modifier: Modifier = Modifier) {
             .clickable(role = Role.Button, onClickLabel = "打开这个家的说明书") { open = true },
         contentAlignment = Alignment.Center,
     ) {
-        Surface(Modifier.fillMaxWidth(), color = colors.sand, contentColor = colors.onSand,
-            shape = RoundedCornerShape(12.dp)) {
+        // 预览图没有土黄色横幅：换成水彩玻璃（半透明底 + 1dp 白边 + 轻投影）。
+        val light = !LocalDarkMode.current
+        Surface(Modifier.fillMaxWidth(), color = colors.panel.copy(alpha = if (light) .62f else .55f),
+            contentColor = colors.ink,
+            shape = RoundedCornerShape(12.dp),
+            border = BorderStroke(1.dp, GlassTints.border(light)),
+            shadowElevation = 2.dp) {
             Row(Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)) {

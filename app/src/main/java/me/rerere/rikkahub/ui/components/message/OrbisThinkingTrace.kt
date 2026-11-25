@@ -1,28 +1,34 @@
 package me.rerere.rikkahub.ui.components.message
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import me.rerere.rikkahub.ui.pages.orbis.OrbisTheme
+import me.rerere.rikkahub.ui.theme.GlassTints
+import me.rerere.rikkahub.ui.theme.LocalDarkMode
 
 /**
- * Gemini-style thinking entry: one hairline row in the transcript, never a card.
+ * Gemini-style thinking entry: one glass pill in the transcript, never a card.
  *
  * Tapping it is what opens `OrbisThinkingSheet`; nothing expands inline, so the reply stays
  * the only thing competing for the reader's attention.
@@ -32,32 +38,55 @@ fun OrbisThinkingTrace(
     durationSeconds: Long?,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    stepCount: Int? = null,
 ) {
     val colors = OrbisTheme.colors
+    val light = !LocalDarkMode.current
+    val shape = RoundedCornerShape(999.dp)
     Row(
         modifier = modifier
-            .clip(RoundedCornerShape(10.dp))
+            .shadow(if (light) 4.dp else 0.dp, shape, clip = false)
+            .clip(shape)
+            // 预览图的 .trace：极淡的玻璃底，让这一行能浮在水彩纸上面而不抢正文。
+            .background(
+                Brush.verticalGradient(
+                    listOf(
+                        GlassTints.top(light).copy(alpha = if (light) .62f else .52f),
+                        GlassTints.bottom(light).copy(alpha = if (light) .44f else .38f),
+                    )
+                )
+            )
+            .border(1.dp, GlassTints.border(light), shape)
             .clickable(onClick = onClick)
-            .padding(horizontal = 9.dp, vertical = 5.dp),
+            .padding(horizontal = 11.dp, vertical = 5.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(7.dp),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         SparkleGlyph(tint = colors.accent, modifier = Modifier.size(14.dp))
         Text(
             text = "思考步骤",
-            style = MaterialTheme.typography.labelMedium,
-            color = colors.mutedInk,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Medium,
+            color = colors.ink,
             maxLines = 1,
         )
-        Text(text = "·", style = MaterialTheme.typography.labelMedium, color = colors.mutedInk.copy(alpha = .55f))
+        if (stepCount != null && stepCount > 0) {
+            Text(text = "·", fontSize = 11.sp, color = colors.mutedInk.copy(alpha = .55f))
+            Text(
+                text = "${stepCount} 步",
+                fontSize = 11.sp,
+                color = colors.mutedInk,
+            )
+        }
         if (durationSeconds != null && durationSeconds > 0) {
+            Text(text = "·", fontSize = 11.sp, color = colors.mutedInk.copy(alpha = .55f))
             Text(
                 text = "${durationSeconds}s",
-                style = MaterialTheme.typography.labelMedium.copy(fontSize = 11.5.sp),
+                fontSize = 11.sp,
                 color = colors.mutedInk.copy(alpha = .8f),
             )
         }
-        Text(text = "›", style = MaterialTheme.typography.labelMedium, color = colors.mutedInk.copy(alpha = .55f))
+        Text(text = "›", fontSize = 12.sp, color = colors.mutedInk.copy(alpha = .6f))
     }
 }
 

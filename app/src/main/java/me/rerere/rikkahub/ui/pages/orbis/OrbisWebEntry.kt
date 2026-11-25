@@ -25,6 +25,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import me.rerere.hugeicons.HugeIcons
+import me.rerere.hugeicons.stroke.Globe02
 import me.rerere.rikkahub.data.datastore.SettingsStore
 import me.rerere.rikkahub.data.orbis.webshortcuts.*
 import org.koin.compose.koinInject
@@ -77,16 +79,11 @@ private fun WebEntryContent(assistant: String, conversation: String, store: Sett
         }
     }
     DisposableEffect(Unit) { onDispose { sessions.values.forEach { it.destroy() }; sessions.clear() } }
-    val ink = OrbisTheme.colors.ink
+    // 预览图顶栏：18dp 细线图标，不再自带底色和描边，玻璃由外层那一条药丸承担。
     BadgedBox(badge = { if (window.pages.isNotEmpty()) Badge { Text(window.pages.size.toString()) } }) {
         IconButton(onClick = { if (window.pages.isEmpty()) library = true else change { it.copy(expanded = !it.expanded) } },
             modifier = Modifier.size(40.dp).semantics { contentDescription = "快捷网页${if(window.pages.isNotEmpty()) "，${window.pages.size}页" else "收藏"}" }) {
-            Canvas(Modifier.size(22.dp)) {
-                val stroke = Stroke(1.5.dp.toPx())
-                drawCircle(ink, style = stroke)
-                drawOval(ink, topLeft = Offset(size.width * .26f, 0f), size = Size(size.width * .48f, size.height), style = stroke)
-                drawLine(ink, Offset(0f, size.height / 2), Offset(size.width, size.height / 2), strokeWidth = stroke.width)
-            }
+            Icon(HugeIcons.Globe02, contentDescription = null, modifier = Modifier.size(18.dp))
         }
     }
     val selected = window.pages.firstOrNull { it.id == window.selectedId } ?: window.pages.firstOrNull()

@@ -2,6 +2,7 @@ package me.rerere.rikkahub.ui.pages.orbis.community
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -18,6 +19,8 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
+import me.rerere.hugeicons.HugeIcons
+import me.rerere.hugeicons.stroke.UserGroup
 import me.rerere.rikkahub.data.orbis.community.CommunityClient
 import me.rerere.rikkahub.data.orbis.market.*
 import me.rerere.rikkahub.ui.pages.orbis.OrbisTheme
@@ -54,17 +57,16 @@ import me.rerere.rikkahub.ui.pages.orbis.OrbisTheme
 
 @Composable
 internal fun CommunityEntryButton(unread: Int, onClick: () -> Unit, modifier: Modifier=Modifier) {
-    // Both pieces reserve their own space outside the circular touch feedback clip.
-    // The slot grows with accessibility fonts, so neither digits nor the icon are hidden.
+    // 预览图顶栏：18dp 细线图标，没有自己的底色与描边；未读数以小圆点压在上角。
     Box(modifier.sizeIn(minWidth=40.dp,minHeight=40.dp)) {
         IconButton(onClick=onClick,modifier=Modifier.matchParentSize().semantics {
             contentDescription=if(unread>0) "打开社区，$unread 条未读群消息" else "打开社区"
-        }) { }
-        Column(Modifier.align(Alignment.Center),horizontalAlignment=Alignment.CenterHorizontally) {
-            if(unread>0) Badge(modifier=Modifier.align(Alignment.End).testTag("community-unread-badge")) {
-                Text(if(unread>99) "99+" else unread.toString(),maxLines=1)
-            }
-            Text("♧",modifier=Modifier.testTag("community-entry-icon"),fontSize=23.sp,color=OrbisTheme.colors.accent)
+        }) {
+            Icon(HugeIcons.UserGroup,contentDescription=null,modifier=Modifier.size(18.dp),
+                tint=OrbisTheme.colors.ink.copy(alpha=.82f))
+        }
+        if(unread>0) Badge(modifier=Modifier.align(Alignment.TopEnd).testTag("community-unread-badge")) {
+            Text(if(unread>99) "99+" else unread.toString(),maxLines=1)
         }
     }
 }

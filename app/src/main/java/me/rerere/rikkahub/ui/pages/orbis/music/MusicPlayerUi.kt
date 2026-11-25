@@ -34,6 +34,8 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import me.rerere.hugeicons.HugeIcons
+import me.rerere.hugeicons.stroke.MusicNote01
 import me.rerere.rikkahub.data.orbis.music.*
 import kotlin.math.roundToInt
 
@@ -52,10 +54,14 @@ internal val MusicNight: Color @Composable get() = if(LocalMusicLight.current) C
 @Composable internal fun MusicEntry() {
     val runtime = rememberMusicRuntime() ?: return
     val playback by runtime.playback.collectAsState()
-    IconButton(onClick = { runtime.appearance { it.copy(mode = "expanded") } }, modifier = Modifier.semantics { contentDescription = "打开星河音乐" }) {
-        Box(Modifier.size(32.dp), contentAlignment = Alignment.Center) {
-            Text("♫", fontSize = 23.sp, color = MaterialTheme.colorScheme.primary)
-            if(playback.playing) Box(Modifier.size(6.dp).align(Alignment.TopEnd).background(MaterialTheme.colorScheme.primary, CircleShape))
+    // 预览图顶栏：18dp 细线音符，不要自己的底和边；播放中只留一个 5dp 小点。
+    IconButton(onClick = { runtime.appearance { it.copy(mode = "expanded") } },
+        modifier = Modifier.size(40.dp).semantics { contentDescription = "打开星河音乐" }) {
+        Box(Modifier.size(18.dp), contentAlignment = Alignment.Center) {
+            Icon(HugeIcons.MusicNote01, contentDescription = null, modifier = Modifier.size(18.dp),
+                tint = MaterialTheme.colorScheme.primary)
+            if(playback.playing) Box(Modifier.size(5.dp).align(Alignment.TopEnd)
+                .background(MaterialTheme.colorScheme.primary, CircleShape))
         }
     }
 }

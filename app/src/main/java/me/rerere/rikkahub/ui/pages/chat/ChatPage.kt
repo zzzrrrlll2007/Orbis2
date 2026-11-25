@@ -60,6 +60,8 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -970,7 +972,7 @@ private fun TopBar(
     }
 
     if (BuildConfig.ORBIS_ENABLED) {
-        var manualVisible by rememberSharedPreferenceBoolean("orbis_chat_manual_visible", true)
+        var manualVisible by rememberSharedPreferenceBoolean("orbis_chat_manual_visible", false)
         val assistant = settings.getAssistantById(conversation.assistantId) ?: settings.getCurrentAssistant()
         var originalArchivesOpen by remember(assistant.id) { mutableStateOf(false) }
         if (originalArchivesOpen) me.rerere.rikkahub.ui.pages.orbis.OrbisOriginalArchives(assistant.id) { originalArchivesOpen = false }
@@ -1022,25 +1024,30 @@ private fun TopBar(
             me.rerere.rikkahub.ui.pages.orbis.OrbisHeaderGlassPill(Modifier.fillMaxWidth().statusBarsPadding().heightIn(min = 46.dp)
                 .windowInsetsPadding(WindowInsets.displayCutout.only(WindowInsetsSides.Horizontal))
                 .padding(horizontal = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                Row(Modifier.weight(1f).heightIn(min = 44.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Box(Modifier.weight(1f).clickable { openTitleEditor() }, contentAlignment = Alignment.Center) {
-                    OrbisHeaderControlSurface(headerOpacity) {
-                        Column(Modifier.padding(horizontal = 10.dp, vertical = 5.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                // 预览图：☰ 在最左，标题块居中加粗，其余入口一律靠右、全部是 18dp 细线图标。
+                if (!bigScreen) OrbisHeaderIconButton(onClick = { scope.launch { drawerState.open() } },
+                    backgroundOpacity = headerOpacity) {
+                    Icon(HugeIcons.Menu03, "打开右侧会话栏")
+                }
+                Box(Modifier.weight(1f).heightIn(min = 44.dp).clickable { openTitleEditor() },
+                    contentAlignment = Alignment.Center) {
+                    Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(assistant.name.ifBlank { "AI" },
                             fontSize = 15.sp, lineHeight = 21.sp, maxLines = 1,
-                            color = OrbisTheme.colors.ink, overflow = TextOverflow.Ellipsis)
+                            fontWeight = FontWeight.Bold, textAlign = TextAlign.Center,
+                            color = OrbisTheme.colors.ink, overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.fillMaxWidth())
                         if (conversation.title.isNotBlank() && conversation.title != assistant.name)
                             Text(conversation.title, fontSize = 10.sp, lineHeight = 14.sp, maxLines = 1,
+                                textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth(),
                                 color = OrbisTheme.colors.mutedInk, overflow = TextOverflow.Ellipsis)
-                        }
                     }
-                    }
-                    if (assistant.orbisBodyEnabled && !conversation.isConsultation) {
-                        me.rerere.rikkahub.ui.pages.orbis.OrbisBodyEntry(assistant.id.toString(), conversation.id.toString())
-                    }
-                    if (!conversation.isConsultation) {
-                        me.rerere.rikkahub.ui.pages.orbis.OrbisWebEntry(assistant.id.toString(), conversation.id.toString())
-                    }
+                }
+                if (assistant.orbisBodyEnabled && !conversation.isConsultation) {
+                    me.rerere.rikkahub.ui.pages.orbis.OrbisBodyEntry(assistant.id.toString(), conversation.id.toString())
+                }
+                if (!conversation.isConsultation) {
+                    me.rerere.rikkahub.ui.pages.orbis.OrbisWebEntry(assistant.id.toString(), conversation.id.toString())
                 }
                 if (!conversation.isConsultation) me.rerere.rikkahub.ui.pages.orbis.community.CommunityEntry(assistant.id.toString())
                 me.rerere.rikkahub.ui.pages.orbis.music.MusicEntry()
@@ -1060,10 +1067,6 @@ private fun TopBar(
                 OrbisHeaderIconButton(onClick = onClickMenu, backgroundOpacity = headerOpacity) {
                     Icon(if (previewMode) HugeIcons.Cancel01 else HugeIcons.LeftToRightListBullet,
                         "切换对话目录")
-                }
-                if (!bigScreen) OrbisHeaderIconButton(onClick = { scope.launch { drawerState.open() } },
-                    backgroundOpacity = headerOpacity) {
-                    Icon(HugeIcons.Menu03, "打开右侧会话栏")
                 }
             }
         if (manualVisible) Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {

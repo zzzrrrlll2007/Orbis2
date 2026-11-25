@@ -116,6 +116,7 @@ import me.rerere.rikkahub.utils.openUrl
 import me.rerere.rikkahub.utils.urlDecode
 import java.util.Locale
 import org.koin.compose.koinInject
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
@@ -221,6 +222,8 @@ fun ChatMessage(
     }
     var showActionsSheet by remember { mutableStateOf(false) }
     var showSelectCopySheet by remember { mutableStateOf(false) }
+    // 思考步骤抽屉：对话流里只留一行入口，完整推理在这里打开。
+    var thinkingSheet by remember { mutableStateOf<List<ThinkingStepUi>?>(null) }
     val navController = LocalNavController.current
     val context = LocalContext.current
     val colorScheme = MaterialTheme.colorScheme
@@ -381,10 +384,17 @@ fun ChatMessage(
             assistant = assistant,
         )
 
-        ProvideTextStyle(textStyle) {
-            ChatMessageNerdLine(message = message)
-        }
+        // 预览图里 AI 回复下面没有「用量记录 · 用时 N 秒 / 展开」这一行。
+        // 数据仍随消息保存，只是不再默认展示；需要时把 ChatMessageNerdLine(message = message) 放回来即可。
 
+    }
+    thinkingSheet?.let { steps ->
+        OrbisThinkingSheet(
+            visible = true,
+            steps = steps,
+            modelName = model?.displayName?.takeIf { it.isNotBlank() },
+            onDismiss = { thinkingSheet = null },
+        )
     }
     if (showActionsSheet) {
         ChatMessageActionsSheet(
@@ -503,6 +513,26 @@ internal fun MessagePartsBlock(
             is MessagePartBlock.ThinkingBlock -> {
                 if (block.steps.isNotEmpty()) {
                     val isReasoningOnlyBlock = block.steps.fastAll { it is ThinkingStep.ReasoningStep }
+                    if (isReasoningOnlyBlock) {
+                        // 预览图：纯推理不再铺成一张灰卡，只在对话流里留一行
+                        // 「✦ 思考步骤 · N 步 · Xs ›」；点开才是玻璃抽屉。
+                        val reasoningParts = block.steps.mapNotNull { (it as? ThinkingStep.ReasoningStep)?.reasoning }
+                        val stepsUi = reasoningParts.map { reasoning ->
+                            val body = reasoning.reasoning.trim()
+                            ThinkingStepUi(title = thinkingStepTitle(body), body = body)
+                        }
+                        val seconds = reasoningParts.sumOf { reasoning ->
+                            ((reasoning.finishedAt ?: Clock.System.now()) - reasoning.createdAt)
+                                .inWholeSeconds.coerceAtLeast(0L)
+                        }
+                        if (stepsUi.isNotEmpty()) OrbisThinkingTrace(
+                            durationSeconds = seconds.takeIf { it > 0L },
+                            stepCount = stepsUi.size,
+                            onClick = { thinkingSheet = stepsUi },
+                            modifier = Modifier.animateContentSize(),
+                        )
+                    } else {
+                    // 带工具调用的链条仍需要就地审批，保留原来的可展开卡片。
                     ChainOfThought(
                         modifier = Modifier.animateContentSize(),
                         steps = block.steps.withIndex().toList(),
@@ -553,6 +583,7 @@ internal fun MessagePartsBlock(
                                 }
                             }
                         }
+                    }
                     }
                 }
             }
@@ -827,4 +858,19 @@ internal fun MessagePartsBlock(
             }
         }
     }
+}
+
+/**
+ * 思考抽屉里每一步的小标题：取正文第一段有效行，去掉 markdown 记号。
+ * 推理文本通常没有结构化标题，所以这只是一个可读的锚点，不是解析。
+ */
+private fun thinkingStepTitle(text: String): String {
+    val line = text.lineSequence()
+        .map { it.trim() }
+        .firstOrNull { it.isNotBlank() }
+        .orEmpty()
+        .trimStart('#', '*', '·', '-', '•', ' ', '「', '」')
+        .trim()
+    if (line.isBlank()) return "推理"
+    return if (line.length <= 24) line else line.take(24) + "…"
 }

@@ -153,7 +153,7 @@ fun ChatDrawerContent(
     val toaster = LocalToaster.current
     val personalSettingsStore: SettingsStore = koinInject()
     val colors = OrbisTheme.colors
-    var manualVisible by rememberSharedPreferenceBoolean("orbis_chat_manual_visible", true)
+    var manualVisible by rememberSharedPreferenceBoolean("orbis_chat_manual_visible", false)
     val configuration = LocalConfiguration.current
     val closeFocusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
