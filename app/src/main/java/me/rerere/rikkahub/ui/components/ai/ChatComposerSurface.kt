@@ -12,10 +12,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
 import me.rerere.rikkahub.ui.theme.GlassTints
 import me.rerere.rikkahub.ui.theme.LocalDarkMode
@@ -36,17 +38,31 @@ internal fun ChatComposerSurface(
     val customTheme = me.rerere.rikkahub.ui.pages.orbis.LocalChatTheme.current
     if (orbis && customTheme == null) {
         val light = !LocalDarkMode.current
+        // 参考「小克Cat 玻璃材质」：半透明渐变 + 1px 描边 + 外侧亮环 + 顶部高光 + 双层投影，
+        // 底下由 hazeBlur 真正模糊背景，所以这里可以比之前更透一点（.86 → .72）。
+        val fillTop = if (light) Color(0xDBFFFFFF) else Color(0xE65E6A76)
+        val fillBottom = if (light) Color(0xB8FBF8F3) else Color(0xD92B333C)
+        val stroke = if (light) Color(0x75FFFFFF) else Color(0x40C6D6E5)
+        val ring = if (light) Color(0xCCFFFFFF) else Color(0x26FFFFFF)
         Box(
             modifier = modifier
-                // 阴影只做一圈很淡的托底：重投影在纸色上会糊成一条灰黑色的边。
                 .shadow(
                     elevation = 8.dp, shape = shape, clip = false,
-                    ambientColor = Color(0xFF464F5C).copy(alpha = .07f),
-                    spotColor = Color(0xFF464F5C).copy(alpha = .07f),
+                    ambientColor = Color(0xFF464F5C).copy(alpha = .10f),
+                    spotColor = Color(0xFF464F5C).copy(alpha = .05f),
                 )
                 .clip(shape)
-                .background(Brush.verticalGradient(listOf(GlassTints.top(light), GlassTints.bottom(light))))
-                .border(BorderStroke(1.dp, GlassTints.border(light)), shape),
+                .background(Brush.verticalGradient(listOf(fillTop, fillBottom)))
+                .border(BorderStroke(1.dp, stroke), shape)
+                .drawWithContent {
+                    drawContent()
+                    // 外侧亮环：沿真实圆角形状描一圈，从底色里“托”起玻璃。
+                    drawOutline(
+                        outline = shape.createOutline(size, layoutDirection, this),
+                        color = ring,
+                        style = Stroke(width = 1.dp.toPx()),
+                    )
+                },
         ) {
             CompositionLocalProvider(LocalContentColor provides contentColor) { content() }
         }

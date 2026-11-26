@@ -371,7 +371,8 @@ fun ChatInput(
                     .fillMaxWidth()
                     .clip(containerShape)
                     .then(
-                        if (!orbis && settings.displaySetting.enableBlurEffect) Modifier.hazeBlur(
+                        // 玻璃质感要靠真正的背景模糊：Orbis 也打开 haze，玻璃才能保持半透明。
+                        if (settings.displaySetting.enableBlurEffect || orbis) Modifier.hazeBlur(
                             input = HazeInput.Sources(hazeState),
                             style = inputHazeStyle,
                         )
