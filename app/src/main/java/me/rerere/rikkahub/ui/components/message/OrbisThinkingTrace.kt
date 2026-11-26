@@ -49,7 +49,6 @@ fun OrbisThinkingTrace(
     val shape = RoundedCornerShape(999.dp)
     Row(
         modifier = modifier
-            .shadow(if (light) 4.dp else 0.dp, shape, clip = false)
             .clip(shape)
             // 预览图的 .trace：接近纸白的一行胶囊。不做半透明——底下就是正文，透过去会糊。
             .background(

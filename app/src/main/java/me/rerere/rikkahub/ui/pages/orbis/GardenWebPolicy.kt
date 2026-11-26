@@ -7,7 +7,8 @@ import me.rerere.rikkahub.data.orbis.decodeGardenExtrasUtf8
 internal object GardenAssetPolicy {
     const val ORIGIN = "https://appassets.androidplatform.net"
     const val HOME = "$ORIGIN/assets/orbis-garden/index.html"
-    private val names = setOf("index.html", "original.css", "local.css", "garden.js", "library.js")
+    // zoe-shell.css 是 Zoe 的玻璃壳覆盖层：不在白名单里会被 shouldInterceptRequest 拒绝（404）。
+    private val names = setOf("index.html", "original.css", "local.css", "zoe-shell.css", "garden.js", "library.js")
     fun asset(url: String): Boolean = names.any { url == "$ORIGIN/assets/orbis-garden/$it" }
     fun mainFrame(url: String?): Boolean = url == HOME
 }
