@@ -10,9 +10,9 @@
   --z-ink: #2F3944;
   --z-muted: #5E6A77;
   --z-border: rgba(255, 255, 255, .92);
-  --z-glass-top: rgba(255, 255, 255, .97);
-  --z-glass-bottom: rgba(248, 246, 242, .94);
-  --z-shadow: 0 12px 30px rgba(70, 79, 92, .14);
+  --z-glass-top: rgba(255, 252, 247, .76);
+  --z-glass-bottom: rgba(252, 246, 238, .66);
+  --z-shadow: 0 10px 26px rgba(70, 79, 92, .10);
   --z-highlight: inset 0 1px 0 rgba(255, 255, 255, .95);
   --z-accent: #64809C;
 }
@@ -21,8 +21,8 @@ html[data-theme="dark"] {
   --z-ink: #E9E4DB;
   --z-muted: #A6AFB9;
   --z-border: rgba(255, 255, 255, .14);
-  --z-glass-top: rgba(80, 94, 108, .97);
-  --z-glass-bottom: rgba(40, 47, 57, .96);
+  --z-glass-top: rgba(80, 94, 108, .82);
+  --z-glass-bottom: rgba(40, 47, 57, .74);
   --z-shadow: 0 14px 32px rgba(0, 0, 0, .5);
   --z-highlight: inset 0 1px 0 rgba(255, 255, 255, .1);
   --z-accent: #9DB4C9;
@@ -59,6 +59,8 @@ html[data-theme="dark"] {
 
 /* ---------- 日历：整张纸白玻璃卡 ---------- */
 .calendar {
+  -webkit-backdrop-filter: blur(14px) saturate(130%);
+  backdrop-filter: blur(14px) saturate(130%);
   margin: 0 12px 18px;
   border-radius: 26px;
   color: var(--z-ink);
@@ -184,7 +186,7 @@ html[data-theme="dark"] .local-shell select {
 
 /* ---- 末端强制覆盖：上游若带 !important，这里仍然赢 ---- */
 .local-home .top-section{
-  margin:10px 12px 16px !important; padding:12px 8px 10px !important;
+  margin:10px 12px 16px !important; padding:10px 6px 8px !important; min-height:0 !important;
   border-radius:22px !important;
   background:linear-gradient(180deg,var(--z-glass-top),var(--z-glass-bottom)) !important;
   border:1px solid var(--z-border) !important;
