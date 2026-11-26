@@ -1,41 +1,41 @@
 package me.rerere.rikkahub.ui.components.ui
 
-import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LargeFlexibleTopAppBar
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemColors
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEachIndexed
+import me.rerere.rikkahub.ui.pages.orbis.OrbisTheme
 import me.rerere.rikkahub.ui.theme.CustomColors
 
 private val CardGroupCorner = 20.dp
-private val CardGroupItemSpacing = 2.dp
-private val CardGroupInnerCorner = 4.dp
 
 private data class CardGroupItem(
     val onClick: (() -> Unit)?,
@@ -93,56 +93,10 @@ private class CardGroupScopeImpl : CardGroupScope {
     }
 }
 
-@Composable
-private fun CardGroupListItem(
-    item: CardGroupItem,
-    count: Int,
-    index: Int,
-) {
-    val isFirst = index == 0
-    val isLast = index == count - 1
-
-    val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
-
-    val topCorner by animateDpAsState(
-        targetValue = if (isPressed || count == 1 || isFirst) CardGroupCorner else CardGroupInnerCorner,
-        animationSpec = MaterialTheme.motionScheme.fastSpatialSpec(),
-    )
-    val bottomCorner by animateDpAsState(
-        targetValue = if (isPressed || count == 1 || isLast) CardGroupCorner else CardGroupInnerCorner,
-        animationSpec = MaterialTheme.motionScheme.fastSpatialSpec(),
-    )
-
-    ListItem(
-        headlineContent = item.headlineContent,
-        modifier = item.modifier
-            .fillMaxWidth()
-            .clip(
-                RoundedCornerShape(
-                    topStart = topCorner,
-                    topEnd = topCorner,
-                    bottomStart = bottomCorner,
-                    bottomEnd = bottomCorner,
-                )
-            )
-            .then(
-                if (item.onClick != null) {
-                    Modifier.clickable(
-                        interactionSource = interactionSource,
-                        indication = LocalIndication.current,
-                        onClick = item.onClick,
-                    )
-                } else Modifier
-            ),
-        overlineContent = item.overlineContent,
-        supportingContent = item.supportingContent,
-        leadingContent = item.leadingContent,
-        trailingContent = item.trailingContent,
-        colors = item.colors ?: CustomColors.listItemColors,
-    )
-}
-
+/**
+ * 预览图的设置分组：一个纸白圆角卡，行之间 1px 细线，分组标题是卡外的小字。
+ * 之前是每行一个圆角块 + 2dp 间隙，看起来像一堆独立按钮。
+ */
 @Composable
 fun CardGroup(
     modifier: Modifier = Modifier,
@@ -151,22 +105,69 @@ fun CardGroup(
 ) {
     val scope = CardGroupScopeImpl()
     scope.content()
+    val colors = OrbisTheme.colors
+    val shape = RoundedCornerShape(CardGroupCorner)
 
     Column(modifier = modifier) {
         if (title != null) {
-            CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.primary) {
-                ProvideTextStyle(MaterialTheme.typography.titleSmallEmphasized) {
-                    Box(modifier = Modifier.padding(start = 4.dp, top = 8.dp, bottom = 8.dp)) {
+            CompositionLocalProvider(LocalContentColor provides colors.mutedInk) {
+                ProvideTextStyle(
+                    MaterialTheme.typography.labelSmall.copy(
+                        fontSize = 10.sp,
+                        lineHeight = 14.sp,
+                        fontWeight = FontWeight.Medium,
+                        letterSpacing = 1.6.sp,
+                    )
+                ) {
+                    Box(modifier = Modifier.padding(start = 12.dp, top = 14.dp, bottom = 7.dp)) {
                         title()
                     }
                 }
             }
         }
         val count = scope.items.size
-        scope.items.fastForEachIndexed { index, item ->
-            CardGroupListItem(item = item, count = count, index = index)
-            if (index != count - 1) {
-                Spacer(modifier = Modifier.height(CardGroupItemSpacing))
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(shape)
+                .background(colors.panel)
+                .border(BorderStroke(1.dp, colors.border.copy(alpha = .7f)), shape),
+        ) {
+            scope.items.fastForEachIndexed { index, item ->
+                val interactionSource = remember { MutableInteractionSource() }
+                ListItem(
+                    headlineContent = item.headlineContent,
+                    modifier = item.modifier
+                        .fillMaxWidth()
+                        .then(
+                            if (item.onClick != null) {
+                                Modifier.clickable(
+                                    interactionSource = interactionSource,
+                                    indication = LocalIndication.current,
+                                    onClick = item.onClick,
+                                )
+                            } else Modifier
+                        ),
+                    overlineContent = item.overlineContent,
+                    supportingContent = item.supportingContent,
+                    leadingContent = item.leadingContent,
+                    trailingContent = item.trailingContent,
+                    colors = item.colors ?: ListItemDefaults.colors(
+                        containerColor = Color.Transparent,
+                        headlineColor = colors.ink,
+                        supportingColor = colors.mutedInk,
+                        leadingIconColor = colors.accent.copy(alpha = .9f),
+                        trailingIconColor = colors.mutedInk,
+                        overlineColor = colors.mutedInk,
+                    ),
+                )
+                if (index != count - 1) {
+                    HorizontalDivider(
+                        modifier = Modifier.padding(start = 56.dp, end = 12.dp),
+                        thickness = 1.dp,
+                        color = colors.border.copy(alpha = .55f),
+                    )
+                }
             }
         }
     }
@@ -189,7 +190,7 @@ private fun CardGroupPreview() {
         Column(
             modifier = Modifier
                 .padding(innerPadding)
-                .fillMaxSize()
+                .fillMaxWidth()
         ) {
             CardGroup(
                 modifier = Modifier.padding(horizontal = 16.dp),
