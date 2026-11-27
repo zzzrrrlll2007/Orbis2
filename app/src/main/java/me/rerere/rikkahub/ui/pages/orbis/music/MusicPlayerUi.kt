@@ -40,11 +40,11 @@ import me.rerere.rikkahub.data.orbis.music.*
 import kotlin.math.roundToInt
 
 internal val LocalMusicLight = staticCompositionLocalOf { false }
-internal val MusicInk: Color @Composable get() = if(LocalMusicLight.current) Color(0xFF23364B) else Color(0xFFF0F2FF)
-internal val MusicMuted: Color @Composable get() = if(LocalMusicLight.current) Color(0xFF5E7288) else Color(0xFFACB7CF)
-internal val MusicMint: Color @Composable get() = if(LocalMusicLight.current) Color(0xFF2A6672) else Color(0xFFB4E6E2)
-internal val MusicGold: Color @Composable get() = if(LocalMusicLight.current) Color(0xFF896830) else Color(0xFFE8CD91)
-internal val MusicNight: Color @Composable get() = if(LocalMusicLight.current) Color(0xFFF0F4FA) else Color(0xFF101B31)
+internal val MusicInk: Color @Composable get() = if(LocalMusicLight.current) Color(0xFF23364B) else Color(0xFFF4F1FF)
+internal val MusicMuted: Color @Composable get() = if(LocalMusicLight.current) Color(0xFF5E7288) else Color(0xFFC3C9E6)
+internal val MusicMint: Color @Composable get() = if(LocalMusicLight.current) Color(0xFF5B7CFA) else Color(0xFFA9C0FF)
+internal val MusicGold: Color @Composable get() = if(LocalMusicLight.current) Color(0xFFE57FA8) else Color(0xFFF8C9DE)
+internal val MusicNight: Color @Composable get() = if(LocalMusicLight.current) Color(0xFFF3F5FF) else Color(0xFF101A33)
 
 @Composable internal fun rememberMusicRuntime(): MusicRuntime? {
     val context = LocalContext.current.applicationContext
@@ -68,9 +68,11 @@ internal val MusicNight: Color @Composable get() = if(LocalMusicLight.current) C
 
 @Composable internal fun GalaxySurface(modifier: Modifier = Modifier, opacity: Float = .95f, content: @Composable BoxScope.() -> Unit) {
     val gold = MusicGold; val ink = MusicInk; val light = LocalMusicLight.current
-    Box(modifier.clip(RoundedCornerShape(26.dp)).background(Brush.linearGradient(listOf(
-        (if(light) Color(0xFFF5F7FF) else Color(0xFF182440)).copy(alpha = opacity), (if(light) Color(0xFFE5EBF6) else Color(0xFF26334F)).copy(alpha = opacity), (if(light) Color(0xFFDAEDEF) else Color(0xFF132C3D)).copy(alpha = opacity))))
-        .border(1.dp, MusicGold.copy(alpha = .22f), RoundedCornerShape(26.dp))) {
+    Box(modifier.clip(RoundedCornerShape(24.dp)).background(Brush.linearGradient(listOf(
+        (if(light) Color(0xFFF8F9FF) else Color(0xFF101A33)).copy(alpha = opacity),
+        (if(light) Color(0xFFEFF2FD) else Color(0xFF1B2040)).copy(alpha = opacity),
+        (if(light) Color(0xFFFBEFF5) else Color(0xFF2A1B3D)).copy(alpha = opacity))))
+        .border(1.dp, MusicGold.copy(alpha = .35f), RoundedCornerShape(24.dp))) {
         Canvas(Modifier.matchParentSize()) {
             val points = listOf(.47f to .18f, .56f to .14f, .65f to .18f, .74f to .24f, .87f to .22f, .85f to .37f, .74f to .38f, .74f to .24f)
             points.zipWithNext().forEach { (a, b) -> drawLine(gold.copy(alpha = .18f * opacity), Offset(a.first * size.width, a.second * size.height), Offset(b.first * size.width, b.second * size.height), 1.dp.toPx()) }

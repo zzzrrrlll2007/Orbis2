@@ -203,3 +203,10 @@ html[data-theme="dark"] .local-shell select {
   position:static !important; margin:0 !important; padding:18px 18px 10px !important;
   background:transparent !important; border:0 !important; box-shadow:none !important;
 }
+
+/* ---- 底色换成 App 的纸色，而不是原来的落日渐变 ---- */
+html, body {
+  background: linear-gradient(180deg, #FBF8F3 0%, #F3EDE4 58%, #EFE9DF 100%) !important;
+  background-attachment: fixed !important;
+}
+.starfield { opacity: .35 !important; }
